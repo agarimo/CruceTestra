@@ -30,6 +30,18 @@ public class CruceTestra extends Application {
      */
     public static void main(String[] args) {
         Variables.inicializar();
-        launch(args);
+        testeo();
+        System.exit(0);
+//        launch(args);
+    }
+    
+    public static void testeo(){
+        String a=" 53483776J ";
+        String patron="[\\s][0-9]{4,8}[TRWAGMYFPDXBNJZSQVHLCKE]{1}[\\s]";
+        
+        String found=Regex.buscar(patron, a);
+        
+        System.out.println("|"+found+"|");
+        
     }
 }

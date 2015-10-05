@@ -16,22 +16,25 @@ public class Regex {
     private static Pattern pt;
     private static Matcher mt;
 
-    private static final  String[] fechas = {"[\\s]\\d{2}[/-]\\d{2}[/-]\\d{4}[\\s]",
-                                             "[\\s]\\d{4}[/-]\\d{2}[/-]\\d{2}[\\s]",
-                                             "NO CONSTA"};
+    private static final String[] fechas = {
+        "[\\s]\\d{2}[/-]\\d{2}[/-]\\d{4}[\\s]",
+        "[\\s]\\d{4}[/-]\\d{2}[/-]\\d{2}[\\s]",
+        "NO CONSTA"
+    };
 
-    private static final  String[] identificacion = {"[0-9]{4,8}[A-Za-z]{1}",
-                                                     "[A-Za-z]{1}[0-9]{8,9}",
-                                                     "[A-Za-z]{1}[0-9]{8}[A-Za-z]{1}",
-                                                     "[A-Za-z]{1}[0-9]{7}[A-Za-z]{1}",
-                                                     "[A-Z]{1,3}[0-9]{6,8}",
-                                                     "NO CONSTA"};
+    private static final String[] identificacion = {
+        "[\\s][0-9]{4,8}[TRWAGMYFPDXBNJZSQVHLCKE]{1}[\\s]",
+        "[\\s][ABCDEFGHJKLMNPQRSVW]{1}[0-9]{8,9}[\\s]",
+        "[\\s][XYZ]{1}[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]{1}[\\s]"
+    };
 
-    private static final String[] matriculas = {"[0-9]{4}[\\s-]{0,1}[A-Z]{2,3}",
-                                                "[A-Z]{1,2}[\\s-]{0,1}[0-9]{4,5}[\\s-]{0,1}[A-Z]{1,2}",
-                                                "POKET BIKE",
-                                                "EX",
-                                                "CARECE"};
+    private static final String[] matriculas = {
+        "[0-9]{4}[\\s-]{0,1}[A-Z]{2,3}",
+        "[A-Z]{1,2}[\\s-]{0,1}[0-9]{4,5}[\\s-]{0,1}[A-Z]{1,2}",
+        "POKET BIKE",
+        "EX",
+        "CARECE"
+    };
 
     public static String buscar(String patron, String str) {
         String aux;

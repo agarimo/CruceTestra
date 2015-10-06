@@ -17,25 +17,22 @@ public class Regex {
     private static Matcher mt;
 
     private static final String[] fechas = {
-        "[\\s]\\d{2}[/-]\\d{2}[/-]\\d{4}[\\s]",
-        "[\\s]\\d{4}[/-]\\d{2}[/-]\\d{2}[\\s]",
-        "NO CONSTA"
+        "[\\s][\\d]{2}[/-][\\d]{2}[/-][\\d]{4}[\\s]",
+        "[\\s][\\d]{4}[/-][\\d]{2}[/-][\\d]{2}[\\s]",
+        "[\\s][\\d]{2}[/-][\\d]{2}[/-][\\d]{2}[\\s]"
     };
 
     private static final String[] identificacion = {
         "[\\s][0-9]{4,8}[TRWAGMYFPDXBNJZSQVHLCKE]{1}[\\s]",
-        "[\\s][ABCDEFGHJKLMNPQRSVW]{1}[0-9]{8,9}[\\s]",
-        "[\\s][XYZ]{1}[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]{1}[\\s]"
+        "[\\s][ABCDEFGHJKLMNPQRSVW]{1}[0-9]{8}[\\s]",
+        "[\\s][XYZ]{1}[0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]{1}[\\s]"
     };
 
     private static final String[] matriculas = {
-        "[0-9]{4}[\\s-]{0,1}[A-Z]{2,3}",
-        "[A-Z]{1,2}[\\s-]{0,1}[0-9]{4,5}[\\s-]{0,1}[A-Z]{1,2}",
-        "POKET BIKE",
-        "EX",
-        "CARECE"
+        "[\\s][0-9]{4}[\\s-]{0,1}[A-Z]{2,3}[\\s]",
+        "[\\s][A-Z]{1,2}[\\s-]{0,1}[0-9]{4}[\\s-]{0,1}[A-Z]{1,2}[\\s]"
     };
-
+    
     public static String buscar(String patron, String str) {
         String aux;
         pt = Pattern.compile(patron);
@@ -55,27 +52,21 @@ public class Regex {
         switch (tipo) {
             case 0:
                 if (getFecha(str) != null) {
-                    System.out.println("Fecha encontrada: " + getFecha(str));
                     existe = true;
-                } else {
-                    System.out.println("Fecha no encontrada: " + getFecha(str));
                 }
+                
                 break;
             case 1:
                 if (getDni(str) != null) {
                     existe = true;
-                    System.out.println("Dni encontrado: " + getDni(str));
-                } else {
-                    System.out.println("Dni no encontrado: " + getDni(str));
                 }
+                
                 break;
             case 2:
                 if (getMatricula(str) != null) {
                     existe = true;
-                    System.out.println("Matricula encontrado: " + getMatricula(str));
-                } else {
-                    System.out.println("Matricula no encontrado: " + getMatricula(str));
                 }
+                
                 break;
         }
         return existe;
@@ -87,7 +78,7 @@ public class Regex {
             pt = Pattern.compile(fecha);
             mt = pt.matcher(str);
             if (mt.find()) {
-                aux = mt.group();
+                aux = mt.group().trim();
                 break;
             }
         }
@@ -101,8 +92,7 @@ public class Regex {
             pt = Pattern.compile(identificacion1);
             mt = pt.matcher(str);
             if (mt.find()) {
-                System.out.println("Encontrado patrón: " + identificacion1);
-                aux = mt.group();
+                aux = mt.group().trim();
                 break;
             }
         }
@@ -116,7 +106,7 @@ public class Regex {
             pt = Pattern.compile(matricula);
             mt = pt.matcher(str);
             if (mt.find()) {
-                aux = mt.group();
+                aux = mt.group().trim();
                 break;
             }
         }

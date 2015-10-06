@@ -2,6 +2,7 @@ package main;
 
 import enty.Descarga;
 import enty.ModeloTabla;
+import enty.Multa;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -122,22 +123,22 @@ public class WinC implements Initializable {
                                 break;
 
                             case 1:
-                                setText("PDF generado");
-                                setTextFill(Color.ORANGE);
-                                break;
-
-                            case 2:
-                                setText("Listo para procesar");
-                                setTextFill(Color.ORCHID);
-                                break;
-
-                            case 3:
                                 setText("PROCESADO");
                                 setTextFill(Color.GREEN);
                                 break;
 
+                            case 2:
+                                setText("CON ERRORES");
+                                setTextFill(Color.RED);
+                                break;
+
+                            case 3:
+                                setText(" ");
+                                setTextFill(Color.GREEN);
+                                break;
+
                             case 4:
-                                setText("Error al procesar");
+                                setText(" ");
                                 setTextFill(Color.ORANGERED);
                                 break;
                         }
@@ -177,6 +178,7 @@ public class WinC implements Initializable {
             mt.setCsv(aux.getCsv());
             mt.setDatos(aux.getDatos());
             mt.setFecha(aux.getFecha());
+            mt.setEstado(aux.getEstado());
             listModelo.add(mt);
         }
 
@@ -190,9 +192,20 @@ public class WinC implements Initializable {
 
         if (mt != null) {
             datos = mt.getDatos();
-
             datos = limpiar(datos, mt.getCsv());
-            System.out.println(datos.trim());
+            datos = selectMultas(datos).trim();
+            splitMultas(mt,datos);
+        }
+    }
+    
+    private void splitMultas(ModeloTabla aux,String datos){
+        Multa multa;
+        String[] split = datos.split(System.lineSeparator());
+        
+        for(String split1:split){
+            multa = new Multa();
+            multa.setCodigoBoletin(aux.getId());
+            multa.setLinea(split1);
             
         }
     }
@@ -221,6 +234,25 @@ public class WinC implements Initializable {
             if (split1.contains("EXPEDIENTE SANCIONADO/A IDENTIF")
                     || split1.contains("EXPEDIENTE DENUNCIADO/A IDENTIF")) {
                 print = true;
+            }
+        }
+
+        return sb.toString();
+    }
+
+    private String selectMultas(String datos) {
+        StringBuilder sb = new StringBuilder();
+        String[] split = datos.split(System.lineSeparator());
+
+        for (String split1 : split) {
+            if (Regex.buscar(split1, Regex.FECHA)) {
+                if (Regex.buscar(split1, Regex.DNI) || Regex.buscar(split1, Regex.MATRICULA)) {
+                    sb.append(split1);
+                    sb.append(System.lineSeparator());
+                } else {
+                    sb.append("*error*");
+                    sb.append(System.lineSeparator());
+                }
             }
         }
 
@@ -258,6 +290,7 @@ public class WinC implements Initializable {
                 aux.setFecha(rs.getDate("fecha"));
                 aux.setCsv(rs.getString("csv"));
                 aux.setDatos(rs.getString("datos"));
+                aux.setEstado(rs.getInt("estadoCruce"));
                 list.add(aux);
             }
             rs.close();

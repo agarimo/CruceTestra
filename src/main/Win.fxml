@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.*?>
@@ -8,27 +9,38 @@
 
 <AnchorPane id="AnchorPane" prefHeight="351.0" prefWidth="535.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.WinC">
    <children>
-      <SplitPane dividerPositions="0.32082551594746717" prefHeight="351.0" prefWidth="535.0">
+      <SplitPane dividerPositions="0.32082551594746717" prefHeight="351.0" prefWidth="535.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+          <AnchorPane maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="156.0" prefWidth="164.0">
                <children>
-                  <DatePicker fx:id="dpFecha" layoutX="7.0" layoutY="14.0" onAction="#cambioEnDatePicker" prefWidth="150.0" />
-                  <Button fx:id="btProcesar" layoutX="10.0" layoutY="48.0" mnemonicParsing="false" onAction="#procesarPdf" prefWidth="150.0" text="Procesar PDF" />
-                  <Button fx:id="btArchivo" layoutX="10.0" layoutY="83.0" mnemonicParsing="false" onAction="#generarArchivo" prefHeight="25.0" prefWidth="150.0" text="Generar Archivo" />
-                  <Button fx:id="btAbrirCarpeta" layoutX="10.0" layoutY="116.0" mnemonicParsing="false" onAction="#abrirCarpeta" prefHeight="25.0" prefWidth="150.0" text="Abrir Carpeta" />
+                  <DatePicker fx:id="dpFecha" layoutX="7.0" layoutY="14.0" onAction="#cambioEnDatePicker" prefWidth="150.0" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="15.0" />
+                  <Button fx:id="btProcesar" layoutX="10.0" layoutY="48.0" mnemonicParsing="false" onAction="#procesar" prefWidth="150.0" text="Procesar" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" />
+                  <Button fx:id="btArchivo" layoutX="7.0" layoutY="134.0" mnemonicParsing="false" onAction="#generarArchivo" prefHeight="25.0" prefWidth="150.0" text="Generar Archivo" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" />
+                  <Button fx:id="btAbrirCarpeta" layoutX="7.0" layoutY="168.0" mnemonicParsing="false" onAction="#abrirCarpeta" prefHeight="25.0" prefWidth="150.0" text="Abrir Carpeta" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" />
                   <ProgressIndicator fx:id="piProgreso" layoutX="-6.0" layoutY="239.0" prefHeight="85.0" prefWidth="181.0" progress="0.0" visible="false" />
                   <Label fx:id="lbProgreso" alignment="CENTER" contentDisplay="CENTER" layoutX="-6.0" layoutY="323.0" prefHeight="25.0" prefWidth="181.0" textAlignment="CENTER" visible="false" />
-                  <Button fx:id="btRefrescar" layoutX="10.0" layoutY="150.0" mnemonicParsing="false" onAction="#refrescar" prefHeight="25.0" prefWidth="150.0" text="Refrescar" />
+                  <Button fx:id="btRefrescar" layoutX="7.0" layoutY="312.0" mnemonicParsing="false" onAction="#refrescar" prefHeight="25.0" prefWidth="150.0" text="Refrescar" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" />
+                  <Button fx:id="btProcesarM" layoutX="7.0" layoutY="83.0" mnemonicParsing="false" onAction="#procesarManual" prefHeight="25.0" prefWidth="150.0" text="Procesar Manualmente" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" />
+                  <Separator layoutX="6.0" layoutY="119.0" prefHeight="3.0" prefWidth="150.0" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" />
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                <children>
-                  <TableView fx:id="tabla" layoutX="14.0" layoutY="14.0" prefHeight="326.0" prefWidth="325.0">
-                    <columns>
-                      <TableColumn fx:id="idCL" prefWidth="201.0" resizable="false" text="idEdicto" />
-                      <TableColumn fx:id="estadoCL" prefWidth="120.0" resizable="false" text="Estado" />
-                    </columns>
-                  </TableView>
+                  <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <AnchorPane fx:id="panelPrincipal" prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <TableView fx:id="tabla" prefHeight="326.0" prefWidth="325.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
+                                <columns>
+                                  <TableColumn fx:id="idCL" prefWidth="201.0" resizable="false" text="idEdicto" />
+                                  <TableColumn fx:id="estadoCL" prefWidth="122.0" resizable="false" text="Estado" />
+                                </columns>
+                              </TableView>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="panelManual" prefHeight="200.0" prefWidth="200.0" visible="false" />
+                     </children>
+                  </StackPane>
                </children>
             </AnchorPane>
         </items>

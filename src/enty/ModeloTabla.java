@@ -10,18 +10,27 @@ import util.Dates;
  * @author Agarimo
  */
 public class ModeloTabla {
-    public SimpleStringProperty id = new SimpleStringProperty();
+    public SimpleIntegerProperty id = new SimpleIntegerProperty();
+    public SimpleStringProperty codigo = new SimpleStringProperty();
     public SimpleStringProperty fecha = new SimpleStringProperty();
     public SimpleStringProperty csv = new SimpleStringProperty();
     public SimpleStringProperty datos = new SimpleStringProperty();
     public SimpleIntegerProperty estado = new SimpleIntegerProperty();
 
-    public String getId() {
+    public int getId(){
         return id.get();
     }
-
-    public void setId(String id) {
+    
+    public void setId(int id){
         this.id.set(id);
+    }
+    
+    public String getCodigo() {
+        return codigo.get();
+    }
+
+    public void setCodigo(String id) {
+        this.codigo.set(id);
     }
     
     public String getCsv(){

@@ -12,23 +12,18 @@ import util.Conexion;
 public class Variables {
 
     public static Conexion con;
-    public static File ficheroPdf;
-    public static File ficheroTxt;
+    public static File fichero;
 
     public static void inicializar() {
         driver();
         setConexion();
-        ficheroPdf = new File(new File("data"), "pdfData");
-        ficheroTxt = new File(new File("data"), "txtData");
+        fichero = new File("data");
         initFiles();
     }
 
     private static void initFiles() {
-        if (!ficheroPdf.exists()) {
-            ficheroPdf.mkdirs();
-        }
-        if (!ficheroTxt.exists()) {
-            ficheroTxt.mkdirs();
+        if (!fichero.exists()) {
+            fichero.mkdirs();
         }
     }
 

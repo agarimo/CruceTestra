@@ -29,9 +29,17 @@ public class Regex {
     };
 
     private static final String[] matriculas = {
-        "[\\s][0-9]{4}[\\s-]{0,1}[A-Z]{2,3}[\\s]",
-        "[\\s][A-Z]{1,2}[\\s-]{0,1}[0-9]{4}[\\s-]{0,1}[A-Z]{1,2}[\\s]"
+        "[\\s][0-9]{4}[\\s-]{0,1}[A-Z]{3}[\\s]",
+        "[\\s][A-Z]{1,2}[\\s-]{0,1}[0-9]{4}[\\s-]{0,1}[A-Z]{1,2}[\\s]",
+        "[\\s][CEPRST]{1}[\\s-]{0,1}[0-9]{4}[\\s-]{0,1}[A-Z]{3}[\\s]"
     };
+    
+    public static boolean isBuscar(String patron, String str){
+        pt = Pattern.compile(patron);
+        mt = pt.matcher(str);
+
+        return mt.find();
+    }
     
     public static String buscar(String patron, String str) {
         String aux;

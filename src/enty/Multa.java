@@ -1,6 +1,8 @@
 package enty;
 
 import main.Regex;
+import util.Dates;
+import util.Varios;
 
 /**
  *
@@ -102,25 +104,62 @@ public class Multa {
         this.fechaMulta = Regex.getFecha(linea);
         this.matricula = Regex.getMatricula(linea);
         this.nif = Regex.getDni(linea);
-        
-        if(this.nif==null){
-            splitNif(linea);
+
+        if (this.nif == null) {
+            String patron = "[\\s][XYZ]{1}[0-9]{4,6}[TRWAGMYFPDXBNJZSQVHLCKE]{1}[\\s]";
+
+            if (Regex.isBuscar(patron, linea)) {
+                splitNie(linea);
+            } else {
+                splitNif(linea);
+            }
         }
     }
-    
-    private void splitNif(String linea){
-        String patron="[0-9]{7,8}";
+
+    private void splitNie(String linea) {
+        String nie;
+        String patron = "[\\s][XYZ]{1}[0-9]{4,6}[TRWAGMYFPDXBNJZSQVHLCKE]{1}[\\s]";
+        nie = Regex.buscar(patron, linea).trim();
+        String sub = nie.substring(0, 1);
+
+        if (nie.length() == 8) {
+            this.nif = nie.replace(sub, sub + "0").trim();
+        }
+        if (nie.length() == 7) {
+            this.nif = nie.replace(sub, sub + "00").trim();
+        }
+        if (nie.length() == 6) {
+            this.nif = nie.replace(sub, sub + "000").trim();
+        }
+    }
+
+    private void splitNif(String linea) {
+        String patron = "[0-9]{7,8}";
         String[] splitFecha = linea.split(this.fechaMulta);
-        String[] split =splitFecha[0].split(" ");
+        String[] split = splitFecha[0].split(" ");
         StringBuilder sb = new StringBuilder();
         String aux;
-        
+
         for (int i = 1; i < split.length; i++) {
             sb.append(split[i]);
         }
-        
-        aux=sb.toString();
-        this.nif=Regex.buscar(patron, aux);
+
+        aux = sb.toString();
+        this.nif = Regex.buscar(patron, aux);
+    }
+
+    public String SQLCrear() {
+        return "INSERT into datagest.cruceTestra (fechaPublicacion,codigoEdicto,nEdicto,origen,expediente,fechaMulta,nif,matricula,linea) values("
+                + Varios.entrecomillar(this.fechaPublicacion) + ","
+                + Varios.entrecomillar(this.codigoBoletin) + ","
+                + Varios.entrecomillar(this.boletin) + ","
+                + Varios.entrecomillar(this.origen) + ","
+                + Varios.entrecomillar(this.expediente) + ","
+                + Varios.entrecomillar(this.fechaMulta) + ","
+                + Varios.entrecomillar(this.nif) + ","
+                + Varios.entrecomillar(this.matricula) + ","
+                + Varios.entrecomillar(this.linea)
+                + ")";
     }
 
 }

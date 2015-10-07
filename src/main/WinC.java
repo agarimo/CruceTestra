@@ -3,15 +3,7 @@ package main;
 import enty.Descarga;
 import enty.ModeloTabla;
 import enty.Multa;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,22 +23,31 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import util.Dates;
 import util.Sql;
-import util.Varios;
 
 /**
  *
  * @author Agarimo
  */
 public class WinC implements Initializable {
+
+    @FXML
+    private StackPane panel;
+
+    @FXML
+    private AnchorPane panelPrincipal;
+
+    @FXML
+    private AnchorPane panelManual;
 
     @FXML
     private DatePicker dpFecha;
@@ -64,6 +65,9 @@ public class WinC implements Initializable {
     private Button btProcesar;
 
     @FXML
+    private Button btProcesarM;
+
+    @FXML
     private Button btArchivo;
 
     @FXML
@@ -79,14 +83,33 @@ public class WinC implements Initializable {
     private Label lbProgreso;
 
     ObservableList<ModeloTabla> listaTabla;
+    private final int PANEL_PRINCIPAL = 1;
+    private final int PANEL_MANUAL = 2;
+    private boolean isProcesandoM;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         iniciarTablaProcesar();
+        mostrarPanel(PANEL_PRINCIPAL);
+        isProcesandoM = false;
+    }
+
+    public void mostrarPanel(int a) {
+
+        switch (a) {
+            case 1:
+                panelPrincipal.setVisible(true);
+                panelManual.setVisible(false);
+                break;
+            case 2:
+                panelPrincipal.setVisible(false);
+                panelManual.setVisible(true);
+                break;
+        }
     }
 
     private void iniciarTablaProcesar() {
-        idCL.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idCL.setCellValueFactory(new PropertyValueFactory<>("codigo"));
         idCL.setCellFactory(column -> {
             return new TableCell<ModeloTabla, String>() {
                 @Override
@@ -133,8 +156,8 @@ public class WinC implements Initializable {
                                 break;
 
                             case 3:
-                                setText(" ");
-                                setTextFill(Color.GREEN);
+                                setText("SIN MULTAS");
+                                setTextFill(Color.ORANGE);
                                 break;
 
                             case 4:
@@ -175,6 +198,7 @@ public class WinC implements Initializable {
             mt = new ModeloTabla();
             aux = it.next();
             mt.setId(aux.getId());
+            mt.setCodigo(aux.getCodigo());
             mt.setCsv(aux.getCsv());
             mt.setDatos(aux.getDatos());
             mt.setFecha(aux.getFecha());
@@ -185,29 +209,125 @@ public class WinC implements Initializable {
         listaTabla.addAll(listModelo);
     }
 
-    @FXML
-    void procesarPdf(ActionEvent event) {
-        ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
-        String datos;
+    private List<ModeloTabla> getBoletinesToProcess() {
+        ModeloTabla mt;
+        List<ModeloTabla> list = new ArrayList();
+        Iterator<ModeloTabla> it = listaTabla.iterator();
 
-        if (mt != null) {
-            datos = mt.getDatos();
-            datos = limpiar(datos, mt.getCsv());
-            datos = selectMultas(datos).trim();
-            splitMultas(mt,datos);
+        while (it.hasNext()) {
+            mt = it.next();
+            if (mt.getEstado() == 0) {
+                list.add(mt);
+            }
         }
+
+        return list;
     }
-    
-    private void splitMultas(ModeloTabla aux,String datos){
+
+    @FXML
+    void procesar(ActionEvent event) {
+        Thread a = new Thread(() -> {
+
+            Platform.runLater(() -> {
+                btProcesar.setDisable(true);
+                piProgreso.setVisible(true);
+                piProgreso.setProgress(0);
+                lbProgreso.setVisible(true);
+                lbProgreso.setText("");
+            });
+
+            String datos;
+            ModeloTabla mt;
+            List list = getBoletinesToProcess();
+
+            for (int i = 0; i < list.size(); i++) {
+                final int contador = i;
+                final int total = list.size();
+                Platform.runLater(() -> {
+                    int contadour = contador + 1;
+                    double counter = contador + 1;
+                    double toutal = total;
+                    lbProgreso.setText("PROCESANDO " + contadour + " de " + total);
+                    piProgreso.setProgress(counter / toutal);
+                });
+                mt = (ModeloTabla) list.get(i);
+                datos = mt.getDatos();
+                datos = limpiar(datos, mt.getCsv());
+                datos = selectMultas(datos).trim();
+
+                if (datos.contains("*error*")) {
+                    setEstadoDescarga(mt.getId(), 2);
+                } else {
+                    List<Multa> listado = splitMultas(mt, datos);
+
+                    if (!listado.isEmpty()) {
+                        if (insertMultas(listado)) {
+                            setEstadoDescarga(mt.getId(), 1);
+                        }
+                    } else {
+                        setEstadoDescarga(mt.getId(), 3);
+                    }
+                }
+            }
+
+            Platform.runLater(() -> {
+                piProgreso.setProgress(1);
+                piProgreso.setVisible(false);
+                lbProgreso.setText("");
+                lbProgreso.setVisible(false);
+                btProcesar.setDisable(false);
+
+                cambioEnDatePicker(new ActionEvent());
+            });
+        });
+        a.start();
+    }
+
+    @FXML
+    void procesarManual(ActionEvent event) {
+        if (isProcesandoM) {
+            mostrarPanel(this.PANEL_PRINCIPAL);
+        } else {
+            mostrarPanel(this.PANEL_MANUAL);
+        }
+        isProcesandoM = !isProcesandoM;
+    }
+
+    private boolean insertMultas(List<Multa> list) {
+        Sql bd;
+        Multa aux;
+        Iterator<Multa> it = list.iterator();
+
+        try {
+            bd = new Sql(Variables.con);
+
+            while (it.hasNext()) {
+                aux = it.next();
+                bd.ejecutar(aux.SQLCrear());
+            }
+            return true;
+        } catch (SQLException ex) {
+            Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+
+    }
+
+    private List<Multa> splitMultas(ModeloTabla aux, String datos) {
+        List<Multa> list = new ArrayList();
         Multa multa;
         String[] split = datos.split(System.lineSeparator());
-        
-        for(String split1:split){
-            multa = new Multa();
-            multa.setCodigoBoletin(aux.getId());
-            multa.setLinea(split1);
-            
+
+        for (String split1 : split) {
+            if (!split1.equals("")) {
+                multa = new Multa();
+                multa.setCodigoBoletin(aux.getCodigo());
+                multa.setFechaPublicacion(aux.getFecha());
+                multa.setLinea(split1);
+                list.add(multa);
+            }
         }
+        return list;
     }
 
     private String limpiar(String datos, String csv) {
@@ -253,6 +373,11 @@ public class WinC implements Initializable {
                     sb.append("*error*");
                     sb.append(System.lineSeparator());
                 }
+            } else {
+                if (Regex.buscar(split1, Regex.DNI) || Regex.buscar(split1, Regex.MATRICULA)) {
+                    sb.append(split1);
+                    sb.append(System.lineSeparator());
+                }
             }
         }
 
@@ -286,7 +411,8 @@ public class WinC implements Initializable {
 
             while (rs.next()) {
                 aux = new Descarga();
-                aux.setId(rs.getString("idEdicto"));
+                aux.setId(rs.getInt("idDescarga"));
+                aux.setCodigo(rs.getString("idEdicto"));
                 aux.setFecha(rs.getDate("fecha"));
                 aux.setCsv(rs.getString("csv"));
                 aux.setDatos(rs.getString("datos"));
@@ -299,5 +425,18 @@ public class WinC implements Initializable {
             Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
         }
         return list;
+    }
+
+    private void setEstadoDescarga(int id, int estado) {
+        Sql bd;
+        String query = "UPDATE datagest.descarga SET estadoCruce=" + estado + " WHERE idDescarga=" + id;
+
+        try {
+            bd = new Sql(Variables.con);
+            bd.ejecutar(query);
+            bd.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

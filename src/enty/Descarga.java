@@ -10,7 +10,8 @@ import util.Varios;
  */
 public class Descarga {
 
-    private String id;
+    private int id;
+    private String codigo;
     private String csv;
     private String datos;
     private Date fecha;
@@ -19,13 +20,21 @@ public class Descarga {
     public Descarga() {
 
     }
-
-    public String getId() {
+    
+    public int getId(){
         return id;
     }
+    
+    public void setId(int id){
+        this.id=id;
+    }
 
-    public void setId(String id) {
-        this.id = id;
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String id) {
+        this.codigo = id;
     }
 
     public Date getFecha() {
@@ -61,7 +70,7 @@ public class Descarga {
     }
 
     public static String SQLBuscar(Date fecha) {
-        return "SELECT b.idEdicto, a.fecha,a.csv,a.datos,a.estadoCruce FROM datagest.descarga a "
+        return "SELECT a.idDescarga,b.idEdicto, a.fecha,a.csv,a.datos,a.estadoCruce FROM datagest.descarga a "
                 + "left join datagest.edicto b on a.idDescarga=b.idDescarga "
                 + "where fecha=" + Varios.entrecomillar(Dates.imprimeFecha(fecha));
     }

@@ -28,17 +28,37 @@
                <children>
                   <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <AnchorPane fx:id="panelPrincipal" prefHeight="200.0" prefWidth="200.0">
+                        <AnchorPane fx:id="panelPrincipal" prefHeight="200.0" prefWidth="200.0" visible="false">
                            <children>
                               <TableView fx:id="tabla" prefHeight="326.0" prefWidth="325.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
                                 <columns>
                                   <TableColumn fx:id="idCL" prefWidth="201.0" resizable="false" text="idEdicto" />
                                   <TableColumn fx:id="estadoCL" prefWidth="122.0" resizable="false" text="Estado" />
                                 </columns>
+                                 <contextMenu>
+                                    <ContextMenu>
+                                      <items>
+                                        <MenuItem mnemonicParsing="false" onAction="#verBoletin" text="Ver Boletin" />
+                                          <MenuItem mnemonicParsing="false" onAction="#eliminarBoletin" text="Eliminar Boletin" />
+                                      </items>
+                                    </ContextMenu>
+                                 </contextMenu>
                               </TableView>
                            </children>
                         </AnchorPane>
-                        <AnchorPane fx:id="panelManual" prefHeight="200.0" prefWidth="200.0" visible="false" />
+                        <AnchorPane fx:id="panelManual" prefHeight="200.0" prefWidth="200.0" visible="false">
+                           <children>
+                              <ListView fx:id="lvManual" editable="true" layoutX="14.0" layoutY="14.0" prefHeight="279.0" prefWidth="325.0" style="-fx-background-color: #cdd5f0;" AnchorPane.bottomAnchor="53.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
+                                 <contextMenu>
+                                    <ContextMenu>
+                                      <items>
+                                        <MenuItem mnemonicParsing="false" onAction="#eliminarLinea" text="Eliminar" />
+                                      </items>
+                                    </ContextMenu>
+                                 </contextMenu>
+                              </ListView>
+                              <Button fx:id="btManualP" layoutX="297.0" layoutY="310.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="PROCESAR" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
+                           </children></AnchorPane>
                      </children>
                   </StackPane>
                </children>

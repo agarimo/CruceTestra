@@ -72,6 +72,7 @@ public class Descarga {
     public static String SQLBuscar(Date fecha) {
         return "SELECT a.idDescarga,b.idEdicto, a.fecha,a.csv,a.datos,a.estadoCruce FROM datagest.descarga a "
                 + "left join datagest.edicto b on a.idDescarga=b.idDescarga "
-                + "where fecha=" + Varios.entrecomillar(Dates.imprimeFecha(fecha));
+                + "where fecha=" + Varios.entrecomillar(Dates.imprimeFecha(fecha)) +" "
+                + "and estadoCruce<4";
     }
 }

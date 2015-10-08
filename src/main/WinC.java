@@ -3,10 +3,15 @@ package main;
 import enty.Descarga;
 import enty.ModeloTabla;
 import enty.Multa;
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -20,9 +25,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -31,7 +39,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.util.Callback;
 import util.Dates;
+import util.Files;
 import util.Sql;
 
 /**
@@ -82,7 +92,14 @@ public class WinC implements Initializable {
     @FXML
     private Label lbProgreso;
 
+    @FXML
+    private ListView lvManual;
+
+    @FXML
+    private Button btManualP;
+
     ObservableList<ModeloTabla> listaTabla;
+    ObservableList<String> listaManual;
     private final int PANEL_PRINCIPAL = 1;
     private final int PANEL_MANUAL = 2;
     private boolean isProcesandoM;
@@ -90,6 +107,7 @@ public class WinC implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         iniciarTablaProcesar();
+        iniciarListaManual();
         mostrarPanel(PANEL_PRINCIPAL);
         isProcesandoM = false;
     }
@@ -172,6 +190,47 @@ public class WinC implements Initializable {
 
         listaTabla = FXCollections.observableArrayList();
         tabla.setItems(listaTabla);
+    }
+
+    private void iniciarListaManual() {
+        lvManual.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
+            @Override
+            public ListCell<String> call(ListView<String> p) {
+                ListCell<String> cell = new ListCell<String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        this.setAlignment(Pos.CENTER_LEFT);
+
+                        if (item == null || empty) {
+                            setText("");
+                            setStyle("-fx-background-color: grey");
+                        } else {
+                            if (Regex.buscar(item, Regex.FECHA)) {
+                                if (Regex.buscar(item, Regex.DNI) || Regex.buscar(item, Regex.MATRICULA)) {
+                                    setText(item);
+                                    setTextFill(Color.BLACK);
+                                    setStyle("-fx-background-color: green");
+                                } else {
+                                    setText(item);
+                                    setTextFill(Color.RED);
+                                    setStyle("");
+                                }
+                            }else{
+                                setText(item);
+                                setTextFill(Color.RED);
+                                setStyle("");
+                            }
+                        }
+                    }
+                };
+
+                return cell;
+            }
+        });
+
+        listaManual = FXCollections.observableArrayList();
+        lvManual.setItems(listaManual);
     }
 
     @FXML
@@ -287,8 +346,32 @@ public class WinC implements Initializable {
     void procesarManual(ActionEvent event) {
         if (isProcesandoM) {
             mostrarPanel(this.PANEL_PRINCIPAL);
+            btProcesarM.setText("Procesar Manualmente");
         } else {
-            mostrarPanel(this.PANEL_MANUAL);
+            listaManual.clear();
+            ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
+
+            if (mt != null) {
+                mostrarPanel(this.PANEL_MANUAL);
+                btProcesarM.setText("VOLVER");
+                String datos;
+                String[] split;
+                datos = mt.getDatos();
+                datos = limpiar(datos, mt.getCsv()).trim();
+                split = datos.split(System.lineSeparator());
+                
+                List lista=new ArrayList();
+                lista.addAll(Arrays.asList(split));
+                
+                listaManual.addAll(lista);
+
+            } else {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("ERROR");
+                alert.setHeaderText("SELECCIONE UN ELEMENTO");
+                alert.setContentText("Debes seleccionar un elemento para continuar");
+                alert.showAndWait();
+            }
         }
         isProcesandoM = !isProcesandoM;
     }
@@ -384,6 +467,36 @@ public class WinC implements Initializable {
         return sb.toString();
     }
 
+    @FXML
+    void verBoletin(ActionEvent event) {
+        ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
+
+        if (mt != null) {
+            Files.escribeArchivo(Variables.temporal, mt.getDatos());
+            try {
+                Desktop.getDesktop().browse(Variables.temporal.toURI());
+            } catch (IOException ex) {
+                Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    @FXML
+    void eliminarBoletin(ActionEvent event) {
+        ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
+
+        if (mt != null) {
+            setEstadoDescarga(mt.getId(), 4);
+            cambioEnDatePicker(new ActionEvent());
+        }
+    }
+
+    @FXML
+    void eliminarLinea(ActionEvent event){
+        int index=lvManual.getSelectionModel().getSelectedIndex();
+        listaManual.remove(index);
+    }
+    
     @FXML
     void generarArchivo(ActionEvent event) {
 

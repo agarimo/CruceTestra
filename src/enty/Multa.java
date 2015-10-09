@@ -1,5 +1,6 @@
 package enty;
 
+import java.util.Date;
 import main.Regex;
 import util.Dates;
 import util.Varios;
@@ -60,6 +61,10 @@ public class Multa {
         return fechaMulta;
     }
 
+    public void setFechaMulta(String fechaMulta) {
+        this.fechaMulta = fechaMulta;
+    }
+
     public String getExpediente() {
         return expediente;
     }
@@ -91,10 +96,28 @@ public class Multa {
     public String getLinea() {
         return linea;
     }
+    
+    public void setLineaQuery(String linea){
+        this.linea=linea;
+    }
 
     public void setLinea(String linea) {
         this.linea = linea;
         splitLinea(linea);
+    }
+
+    @Override
+    public String toString() {
+        String separador="|";
+        return fechaPublicacion+separador+
+                codigoBoletin+separador+
+                boletin+separador+
+                origen+separador+
+                fechaMulta+separador+
+                expediente+separador+
+                nif+separador+
+                matricula+separador+
+                linea;
     }
 
     private void splitLinea(String linea) {
@@ -146,6 +169,10 @@ public class Multa {
 
         aux = sb.toString();
         this.nif = Regex.buscar(patron, aux);
+    }
+    
+    public static String SQLBuscar(Date fecha){
+        return "SELECT * FROM datagest.cruceTestra where fechaPublicacion="+Varios.entrecomillar(Dates.imprimeFecha(fecha));
     }
 
     public String SQLCrear() {

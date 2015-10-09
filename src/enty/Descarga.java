@@ -20,13 +20,13 @@ public class Descarga {
     public Descarga() {
 
     }
-    
-    public int getId(){
+
+    public int getId() {
         return id;
     }
-    
-    public void setId(int id){
-        this.id=id;
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getCodigo() {
@@ -72,7 +72,7 @@ public class Descarga {
     public static String SQLBuscar(Date fecha) {
         return "SELECT a.idDescarga,b.idEdicto, a.fecha,a.csv,a.datos,a.estadoCruce FROM datagest.descarga a "
                 + "left join datagest.edicto b on a.idDescarga=b.idDescarga "
-                + "where fecha=" + Varios.entrecomillar(Dates.imprimeFecha(fecha)) +" "
-                + "and estadoCruce<4";
+                + "where fecha=" + Varios.entrecomillar(Dates.imprimeFecha(fecha)) + " "
+                + "and estadoCruce<5";
     }
 }

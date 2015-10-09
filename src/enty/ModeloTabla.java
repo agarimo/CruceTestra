@@ -9,7 +9,7 @@ import util.Dates;
  *
  * @author Agarimo
  */
-public class ModeloTabla {
+public class ModeloTabla implements Comparable<ModeloTabla> {
     public SimpleIntegerProperty id = new SimpleIntegerProperty();
     public SimpleStringProperty codigo = new SimpleStringProperty();
     public SimpleStringProperty fecha = new SimpleStringProperty();
@@ -63,6 +63,18 @@ public class ModeloTabla {
     
     public void setEstado(int estado){
         this.estado.set(estado);
+    }
+
+    @Override
+    public int compareTo(ModeloTabla o) {
+        
+        if(this.getEstado()>o.getEstado()){
+            return -1;
+        }else if(this.getEstado()<o.getEstado()){
+            return 1;
+        }else{
+            return 0;
+        }
     }
     
     

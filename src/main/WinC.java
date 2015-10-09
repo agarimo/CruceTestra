@@ -1,17 +1,18 @@
 package main;
 
 import enty.Descarga;
+import enty.Estado;
 import enty.ModeloTabla;
 import enty.Multa;
 import java.awt.Desktop;
+import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -37,7 +38,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import util.Dates;
@@ -49,9 +49,6 @@ import util.Sql;
  * @author Agarimo
  */
 public class WinC implements Initializable {
-
-    @FXML
-    private StackPane panel;
 
     @FXML
     private AnchorPane panelPrincipal;
@@ -98,10 +95,23 @@ public class WinC implements Initializable {
     @FXML
     private Button btManualP;
 
+    @FXML
+    private Label lbTotal;
+
+    @FXML
+    private Label lbProcesados;
+
+    @FXML
+    private Label lbErrores;
+
     ObservableList<ModeloTabla> listaTabla;
     ObservableList<String> listaManual;
     private final int PANEL_PRINCIPAL = 1;
     private final int PANEL_MANUAL = 2;
+    private int CONTADOR_TOTAL = 0;
+    private int CONTADOR_PROCESADOS = 0;
+    private int CONTADOR_ERRORES = 0;
+
     private boolean isProcesandoM;
 
     @Override
@@ -134,7 +144,7 @@ public class WinC implements Initializable {
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
                     this.setAlignment(Pos.CENTER);
-
+                    
                     if (item == null || empty) {
                         setText(null);
                         setStyle("");
@@ -159,29 +169,33 @@ public class WinC implements Initializable {
 
                         switch (item) {
                             case 0:
-                                setText("Sin procesar");
+                                setText(Estado.SIN_PROCESAR.toString());
                                 setTextFill(Color.BLACK);
                                 break;
 
                             case 1:
-                                setText("PROCESADO");
+                                setText(Estado.PROCESADO.toString());
                                 setTextFill(Color.GREEN);
                                 break;
 
                             case 2:
-                                setText("CON ERRORES");
+                                setText(Estado.CON_ERRORES.toString());
                                 setTextFill(Color.RED);
                                 break;
 
                             case 3:
-                                setText("SIN MULTAS");
+                                setText(Estado.SIN_MULTAS.toString());
                                 setTextFill(Color.ORANGE);
                                 break;
 
                             case 4:
-                                setText(" ");
-                                setTextFill(Color.ORANGERED);
+                                setText(Estado.ERROR_INSERCION.toString());
+                                setTextFill(Color.ORCHID);
                                 break;
+
+                            case 5:
+                                setText(Estado.DESCARTADO.toString());
+                                setTextFill(Color.ORANGE);
                         }
                     }
                 }
@@ -204,7 +218,7 @@ public class WinC implements Initializable {
 
                         if (item == null || empty) {
                             setText("");
-                            setStyle("-fx-background-color: grey");
+                            setStyle("-fx-background-color:  #f2f2f2");
                         } else {
                             if (Regex.buscar(item, Regex.FECHA)) {
                                 if (Regex.buscar(item, Regex.DNI) || Regex.buscar(item, Regex.MATRICULA)) {
@@ -216,7 +230,7 @@ public class WinC implements Initializable {
                                     setTextFill(Color.RED);
                                     setStyle("");
                                 }
-                            }else{
+                            } else {
                                 setText(item);
                                 setTextFill(Color.RED);
                                 setStyle("");
@@ -240,6 +254,7 @@ public class WinC implements Initializable {
 
             if (fecha != null) {
                 cargarDatos(listaBoe(Descarga.SQLBuscar(fecha)));
+                FXCollections.sort(listaTabla);
             }
         } catch (NullPointerException ex) {
             //
@@ -247,6 +262,9 @@ public class WinC implements Initializable {
     }
 
     void cargarDatos(List<Descarga> lista) {
+        this.CONTADOR_TOTAL = 0;
+        this.CONTADOR_PROCESADOS = 0;
+        this.CONTADOR_ERRORES = 0;
         listaTabla.clear();
         List<ModeloTabla> listModelo = new ArrayList();
         Descarga aux;
@@ -263,9 +281,21 @@ public class WinC implements Initializable {
             mt.setFecha(aux.getFecha());
             mt.setEstado(aux.getEstado());
             listModelo.add(mt);
+            CONTADOR_TOTAL++;
+
+            if (aux.getEstado()==1) {
+                CONTADOR_PROCESADOS++;
+            }
+
+            if (aux.getEstado() > 1) {
+                CONTADOR_ERRORES++;
+            }
         }
 
         listaTabla.addAll(listModelo);
+        lbTotal.setText(Integer.toString(CONTADOR_TOTAL));
+        lbProcesados.setText(Integer.toString(CONTADOR_PROCESADOS));
+        lbErrores.setText(Integer.toString(CONTADOR_ERRORES));
     }
 
     private List<ModeloTabla> getBoletinesToProcess() {
@@ -315,16 +345,20 @@ public class WinC implements Initializable {
                 datos = selectMultas(datos).trim();
 
                 if (datos.contains("*error*")) {
-                    setEstadoDescarga(mt.getId(), 2);
+                    setEstadoDescarga(mt.getId(), Estado.CON_ERRORES);
                 } else {
                     List<Multa> listado = splitMultas(mt, datos);
 
+                    
+                    
                     if (!listado.isEmpty()) {
                         if (insertMultas(listado)) {
-                            setEstadoDescarga(mt.getId(), 1);
+                            setEstadoDescarga(mt.getId(), Estado.PROCESADO);
+                        } else {
+                            setEstadoDescarga(mt.getId(), Estado.ERROR_INSERCION);
                         }
                     } else {
-                        setEstadoDescarga(mt.getId(), 3);
+                        setEstadoDescarga(mt.getId(), Estado.SIN_MULTAS);
                     }
                 }
             }
@@ -360,9 +394,21 @@ public class WinC implements Initializable {
                 datos = limpiar(datos, mt.getCsv()).trim();
                 split = datos.split(System.lineSeparator());
                 
-                List lista=new ArrayList();
-                lista.addAll(Arrays.asList(split));
+                //TODO Reprogramar proceso manual
                 
+                /**
+                 * Crear el objeto linea y clasificar según su bolean, almacenar los válidos para su posterior procesamiento
+                 * en caso de validación del proceso manual.
+                 * Mostrar en lista sólo los inválidos para validar manualmente.
+                 * 
+                 * Reprogramar el CellFactory de la lista para el filtrado en base a la clase linea.
+                 * 
+                 * 
+                 */
+
+                List lista = new ArrayList();
+                lista.addAll(Arrays.asList(split));
+
                 listaManual.addAll(lista);
 
             } else {
@@ -374,6 +420,31 @@ public class WinC implements Initializable {
             }
         }
         isProcesandoM = !isProcesandoM;
+    }
+
+    @FXML
+    void botonProcesarManual(ActionEvent event) {
+        Multa multa;
+        ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
+        List<String> lista = listaManual;
+        List<Multa> list = new ArrayList();
+
+        for (String aux : lista) {
+            multa = new Multa();
+            multa.setCodigoBoletin(mt.getCodigo());
+            multa.setFechaPublicacion(mt.getFecha());
+            multa.setLinea(aux);
+            list.add(multa);
+        }
+
+        if (insertMultas(list)) {
+            setEstadoDescarga(mt.getId(), Estado.PROCESADO);
+        } else {
+            setEstadoDescarga(mt.getId(), Estado.ERROR_INSERCION);
+        }
+
+        procesarManual(new ActionEvent());
+        cambioEnDatePicker(new ActionEvent());
     }
 
     private boolean insertMultas(List<Multa> list) {
@@ -388,12 +459,12 @@ public class WinC implements Initializable {
                 aux = it.next();
                 bd.ejecutar(aux.SQLCrear());
             }
+
             return true;
         } catch (SQLException ex) {
             Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
-
     }
 
     private List<Multa> splitMultas(ModeloTabla aux, String datos) {
@@ -486,25 +557,75 @@ public class WinC implements Initializable {
         ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
 
         if (mt != null) {
-            setEstadoDescarga(mt.getId(), 4);
+            setEstadoDescarga(mt.getId(), Estado.DESCARTADO);
             cambioEnDatePicker(new ActionEvent());
         }
     }
 
     @FXML
-    void eliminarLinea(ActionEvent event){
-        int index=lvManual.getSelectionModel().getSelectedIndex();
+    void eliminarLinea(ActionEvent event) {
+        int index = lvManual.getSelectionModel().getSelectedIndex();
         listaManual.remove(index);
     }
-    
+
     @FXML
     void generarArchivo(ActionEvent event) {
+        try {
+            Date fecha = Dates.asDate(dpFecha.getValue());
 
+            if (fecha != null) {
+                File archivo = new File(Variables.fichero, Dates.imprimeFecha(fecha) + ".txt");
+                archivo.createNewFile();
+                generarArchivo(fecha, archivo);
+            }
+
+        } catch (NullPointerException | IOException ex) {
+            Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void generarArchivo(Date fecha, File aux) {
+        Thread a = new Thread(() -> {
+
+            Platform.runLater(() -> {
+                btArchivo.setDisable(true);
+                piProgreso.setVisible(true);
+                piProgreso.setProgress(-1);
+                lbProgreso.setVisible(true);
+                lbProgreso.setText("GENERANDO ARCHIVO");
+            });
+
+            Multa multa;
+            StringBuilder sb = new StringBuilder();
+            List<Multa> list = listaMulta(Multa.SQLBuscar(fecha));
+            Iterator<Multa> it = list.iterator();
+
+            while (it.hasNext()) {
+                multa = it.next();
+                sb.append(multa);
+                sb.append(System.lineSeparator());
+            }
+
+            Files.escribeArchivo(aux, sb.toString().trim());
+
+            Platform.runLater(() -> {
+                piProgreso.setProgress(1);
+                piProgreso.setVisible(false);
+                lbProgreso.setText("");
+                lbProgreso.setVisible(false);
+                btArchivo.setDisable(false);
+            });
+        });
+        a.start();
     }
 
     @FXML
     void abrirCarpeta(ActionEvent event) {
-
+        try {
+            Desktop.getDesktop().browse(Variables.fichero.toURI());
+        } catch (IOException ex) {
+            Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @FXML
@@ -540,9 +661,40 @@ public class WinC implements Initializable {
         return list;
     }
 
-    private void setEstadoDescarga(int id, int estado) {
+    private List<Multa> listaMulta(String query) {
+        List<Multa> list = new ArrayList();
         Sql bd;
-        String query = "UPDATE datagest.descarga SET estadoCruce=" + estado + " WHERE idDescarga=" + id;
+        ResultSet rs;
+        Multa aux;
+
+        try {
+            bd = new Sql(Variables.con);
+            rs = bd.ejecutarQueryRs(query);
+
+            while (rs.next()) {
+                aux = new Multa();
+                aux.setId(rs.getInt("id"));
+                aux.setFechaPublicacion(Dates.imprimeFecha(rs.getDate("fechaPublicacion")));
+                aux.setCodigoBoletin(rs.getString("codigoEdicto"));
+                aux.setExpediente(rs.getString("expediente"));
+                aux.setFechaMulta(rs.getString("fechaMulta"));
+                aux.setNif(rs.getString("nif"));
+                aux.setMatricula(rs.getString("matricula"));
+                aux.setLineaQuery(rs.getString("linea"));
+
+                list.add(aux);
+            }
+            rs.close();
+            bd.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return list;
+    }
+
+    private void setEstadoDescarga(int id, Estado estado) {
+        Sql bd;
+        String query = "UPDATE datagest.descarga SET estadoCruce=" + estado.getValue() + " WHERE idDescarga=" + id;
 
         try {
             bd = new Sql(Variables.con);

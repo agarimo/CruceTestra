@@ -4,6 +4,7 @@ import enty.Descarga;
 import enty.Estado;
 import enty.ModeloTabla;
 import enty.Multa;
+import enty.ProcesoManual;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
@@ -50,11 +52,15 @@ import util.Sql;
  */
 public class WinC implements Initializable {
 
+    //<editor-fold defaultstate="collapsed" desc="FXML Variables">
     @FXML
     private AnchorPane panelPrincipal;
 
     @FXML
     private AnchorPane panelManual;
+
+    @FXML
+    private AnchorPane panelEspera;
 
     @FXML
     private DatePicker dpFecha;
@@ -104,34 +110,56 @@ public class WinC implements Initializable {
     @FXML
     private Label lbErrores;
 
+    @FXML
+    private Label lbValid;
+
+    @FXML
+    private Label lbInvalid;
+    //</editor-fold>
+
+    private ProcesoManual procesoManual;
+
     ObservableList<ModeloTabla> listaTabla;
     ObservableList<String> listaManual;
+
     private final int PANEL_PRINCIPAL = 1;
     private final int PANEL_MANUAL = 2;
+    private final int PANEL_ESPERA = 3;
     private int CONTADOR_TOTAL = 0;
     private int CONTADOR_PROCESADOS = 0;
     private int CONTADOR_ERRORES = 0;
-
     private boolean isProcesandoM;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         iniciarTablaProcesar();
         iniciarListaManual();
-        mostrarPanel(PANEL_PRINCIPAL);
+        mostrarPanel(0);
         isProcesandoM = false;
     }
 
     public void mostrarPanel(int a) {
 
         switch (a) {
+            case 0:
+                panelPrincipal.setVisible(false);
+                panelManual.setVisible(false);
+                panelEspera.setVisible(false);
+                break;
             case 1:
                 panelPrincipal.setVisible(true);
                 panelManual.setVisible(false);
+                panelEspera.setVisible(false);
                 break;
             case 2:
                 panelPrincipal.setVisible(false);
                 panelManual.setVisible(true);
+                panelEspera.setVisible(false);
+                break;
+            case 3:
+                panelPrincipal.setVisible(false);
+                panelManual.setVisible(false);
+                panelEspera.setVisible(true);
                 break;
         }
     }
@@ -144,7 +172,7 @@ public class WinC implements Initializable {
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
                     this.setAlignment(Pos.CENTER);
-                    
+
                     if (item == null || empty) {
                         setText(null);
                         setStyle("");
@@ -220,21 +248,9 @@ public class WinC implements Initializable {
                             setText("");
                             setStyle("-fx-background-color:  #f2f2f2");
                         } else {
-                            if (Regex.buscar(item, Regex.FECHA)) {
-                                if (Regex.buscar(item, Regex.DNI) || Regex.buscar(item, Regex.MATRICULA)) {
-                                    setText(item);
-                                    setTextFill(Color.BLACK);
-                                    setStyle("-fx-background-color: green");
-                                } else {
-                                    setText(item);
-                                    setTextFill(Color.RED);
-                                    setStyle("");
-                                }
-                            } else {
-                                setText(item);
-                                setTextFill(Color.RED);
-                                setStyle("");
-                            }
+                            setText(item);
+                            setTextFill(Color.RED);
+                            setStyle("");
                         }
                     }
                 };
@@ -249,16 +265,44 @@ public class WinC implements Initializable {
 
     @FXML
     void cambioEnDatePicker(ActionEvent event) {
+
         try {
             Date fecha = Dates.asDate(dpFecha.getValue());
 
             if (fecha != null) {
-                cargarDatos(listaBoe(Descarga.SQLBuscar(fecha)));
-                FXCollections.sort(listaTabla);
+
+                Thread a = new Thread(() -> {
+                    List<Descarga> aux;
+
+                    Platform.runLater(() -> {
+                        dpFecha.setDisable(true);
+                        piProgreso.setVisible(true);
+                        piProgreso.setProgress(-1);
+                        lbProgreso.setVisible(true);
+                        lbProgreso.setText("CARGANDO");
+                        mostrarPanel(this.PANEL_ESPERA);
+                    });
+
+                    aux = listaBoe(Descarga.SQLBuscar(fecha));
+
+                    Platform.runLater(() -> {
+                        dpFecha.setDisable(false);
+                        piProgreso.setProgress(1);
+                        piProgreso.setVisible(false);
+                        lbProgreso.setText("");
+                        lbProgreso.setVisible(false);
+                        cargarDatos(aux);
+                        FXCollections.sort(listaTabla);
+                        mostrarPanel(this.PANEL_PRINCIPAL);
+                    });
+                });
+                a.start();
             }
+
         } catch (NullPointerException ex) {
             //
         }
+
     }
 
     void cargarDatos(List<Descarga> lista) {
@@ -283,7 +327,7 @@ public class WinC implements Initializable {
             listModelo.add(mt);
             CONTADOR_TOTAL++;
 
-            if (aux.getEstado()==1) {
+            if (aux.getEstado() == 1) {
                 CONTADOR_PROCESADOS++;
             }
 
@@ -323,6 +367,7 @@ public class WinC implements Initializable {
                 piProgreso.setProgress(0);
                 lbProgreso.setVisible(true);
                 lbProgreso.setText("");
+                mostrarPanel(this.PANEL_ESPERA);
             });
 
             String datos;
@@ -332,6 +377,7 @@ public class WinC implements Initializable {
             for (int i = 0; i < list.size(); i++) {
                 final int contador = i;
                 final int total = list.size();
+
                 Platform.runLater(() -> {
                     int contadour = contador + 1;
                     double counter = contador + 1;
@@ -339,6 +385,7 @@ public class WinC implements Initializable {
                     lbProgreso.setText("PROCESANDO " + contadour + " de " + total);
                     piProgreso.setProgress(counter / toutal);
                 });
+
                 mt = (ModeloTabla) list.get(i);
                 datos = mt.getDatos();
                 datos = limpiar(datos, mt.getCsv());
@@ -349,9 +396,13 @@ public class WinC implements Initializable {
                 } else {
                     List<Multa> listado = splitMultas(mt, datos);
 
-                    
-                    
                     if (!listado.isEmpty()) {
+
+                        Platform.runLater(() -> {
+                            int contadour = contador + 1;
+                            lbProgreso.setText("INSERTANDO " + contadour + " de " + total);
+                        });
+
                         if (insertMultas(listado)) {
                             setEstadoDescarga(mt.getId(), Estado.PROCESADO);
                         } else {
@@ -369,7 +420,7 @@ public class WinC implements Initializable {
                 lbProgreso.setText("");
                 lbProgreso.setVisible(false);
                 btProcesar.setDisable(false);
-
+                mostrarPanel(this.PANEL_PRINCIPAL);
                 cambioEnDatePicker(new ActionEvent());
             });
         });
@@ -381,6 +432,11 @@ public class WinC implements Initializable {
         if (isProcesandoM) {
             mostrarPanel(this.PANEL_PRINCIPAL);
             btProcesarM.setText("Procesar Manualmente");
+            dpFecha.setDisable(false);
+            btProcesar.setDisable(false);
+            btArchivo.setDisable(false);
+            btAbrirCarpeta.setDisable(false);
+            btRefrescar.setDisable(false);
         } else {
             listaManual.clear();
             ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
@@ -388,28 +444,13 @@ public class WinC implements Initializable {
             if (mt != null) {
                 mostrarPanel(this.PANEL_MANUAL);
                 btProcesarM.setText("VOLVER");
-                String datos;
-                String[] split;
-                datos = mt.getDatos();
-                datos = limpiar(datos, mt.getCsv()).trim();
-                split = datos.split(System.lineSeparator());
-                
-                //TODO Reprogramar proceso manual
-                
-                /**
-                 * Crear el objeto linea y clasificar según su bolean, almacenar los válidos para su posterior procesamiento
-                 * en caso de validación del proceso manual.
-                 * Mostrar en lista sólo los inválidos para validar manualmente.
-                 * 
-                 * Reprogramar el CellFactory de la lista para el filtrado en base a la clase linea.
-                 * 
-                 * 
-                 */
+                dpFecha.setDisable(true);
+                btProcesar.setDisable(true);
+                btArchivo.setDisable(true);
+                btAbrirCarpeta.setDisable(true);
+                btRefrescar.setDisable(true);
 
-                List lista = new ArrayList();
-                lista.addAll(Arrays.asList(split));
-
-                listaManual.addAll(lista);
+                cargarProcesarManual(mt);
 
             } else {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -422,25 +463,54 @@ public class WinC implements Initializable {
         isProcesandoM = !isProcesandoM;
     }
 
+    void cargarProcesarManual(ModeloTabla mt) {
+        String datos;
+        String[] split;
+        datos = mt.getDatos();
+        datos = limpiar(datos, mt.getCsv()).trim();
+        split = datos.split(System.lineSeparator());
+
+        List lista = new ArrayList();
+        lista.addAll(Arrays.asList(split));
+        procesoManual = new ProcesoManual(mt.getId(), mt.getCodigo(), mt.getFecha(), lista);
+
+        listaManual.addAll(procesoManual.getInvalid());
+        lbValid.setText(Integer.toString(procesoManual.validCount()));
+        lbInvalid.setText(Integer.toString(procesoManual.invalidCount()));
+    }
+
+    @FXML
+    void validarLinea(ActionEvent event) {
+        String item = (String) lvManual.getSelectionModel().getSelectedItem();
+        procesoManual.addToValid(item);
+        refreshProcesarManual();
+    }
+
+    void refreshProcesarManual() {
+        listaManual.clear();
+        listaManual.addAll(procesoManual.getInvalid());
+        lbValid.setText(Integer.toString(procesoManual.validCount()));
+        lbInvalid.setText(Integer.toString(procesoManual.invalidCount()));
+    }
+
     @FXML
     void botonProcesarManual(ActionEvent event) {
         Multa multa;
-        ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
-        List<String> lista = listaManual;
+        List<String> lista = procesoManual.getValid();
         List<Multa> list = new ArrayList();
 
         for (String aux : lista) {
             multa = new Multa();
-            multa.setCodigoBoletin(mt.getCodigo());
-            multa.setFechaPublicacion(mt.getFecha());
+            multa.setCodigoBoletin(procesoManual.getCodigo());
+            multa.setFechaPublicacion(procesoManual.getFecha());
             multa.setLinea(aux);
             list.add(multa);
         }
 
         if (insertMultas(list)) {
-            setEstadoDescarga(mt.getId(), Estado.PROCESADO);
+            setEstadoDescarga(procesoManual.getId(), Estado.PROCESADO);
         } else {
-            setEstadoDescarga(mt.getId(), Estado.ERROR_INSERCION);
+            setEstadoDescarga(procesoManual.getId(), Estado.ERROR_INSERCION);
         }
 
         procesarManual(new ActionEvent());
@@ -563,12 +633,6 @@ public class WinC implements Initializable {
     }
 
     @FXML
-    void eliminarLinea(ActionEvent event) {
-        int index = lvManual.getSelectionModel().getSelectedIndex();
-        listaManual.remove(index);
-    }
-
-    @FXML
     void generarArchivo(ActionEvent event) {
         try {
             Date fecha = Dates.asDate(dpFecha.getValue());
@@ -593,6 +657,7 @@ public class WinC implements Initializable {
                 piProgreso.setProgress(-1);
                 lbProgreso.setVisible(true);
                 lbProgreso.setText("GENERANDO ARCHIVO");
+                mostrarPanel(this.PANEL_ESPERA);
             });
 
             Multa multa;
@@ -614,6 +679,7 @@ public class WinC implements Initializable {
                 lbProgreso.setText("");
                 lbProgreso.setVisible(false);
                 btArchivo.setDisable(false);
+                mostrarPanel(this.PANEL_PRINCIPAL);
             });
         });
         a.start();

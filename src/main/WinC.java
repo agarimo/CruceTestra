@@ -265,7 +265,6 @@ public class WinC implements Initializable {
 
     @FXML
     void cambioEnDatePicker(ActionEvent event) {
-
         try {
             Date fecha = Dates.asDate(dpFecha.getValue());
 
@@ -279,7 +278,7 @@ public class WinC implements Initializable {
                         piProgreso.setVisible(true);
                         piProgreso.setProgress(-1);
                         lbProgreso.setVisible(true);
-                        lbProgreso.setText("CARGANDO");
+                        lbProgreso.setText("CARGANDO BOLETINES");
                         mostrarPanel(this.PANEL_ESPERA);
                     });
 
@@ -302,7 +301,6 @@ public class WinC implements Initializable {
         } catch (NullPointerException ex) {
             //
         }
-
     }
 
     void cargarDatos(List<Descarga> lista) {
@@ -366,7 +364,7 @@ public class WinC implements Initializable {
                 piProgreso.setVisible(true);
                 piProgreso.setProgress(0);
                 lbProgreso.setVisible(true);
-                lbProgreso.setText("");
+                lbProgreso.setText("PROCESANDO BOLETINES");
                 mostrarPanel(this.PANEL_ESPERA);
             });
 
@@ -495,26 +493,68 @@ public class WinC implements Initializable {
 
     @FXML
     void botonProcesarManual(ActionEvent event) {
-        Multa multa;
-        List<String> lista = procesoManual.getValid();
-        List<Multa> list = new ArrayList();
 
-        for (String aux : lista) {
-            multa = new Multa();
-            multa.setCodigoBoletin(procesoManual.getCodigo());
-            multa.setFechaPublicacion(procesoManual.getFecha());
-            multa.setLinea(aux);
-            list.add(multa);
-        }
+        Thread a = new Thread(() -> {
 
-        if (insertMultas(list)) {
-            setEstadoDescarga(procesoManual.getId(), Estado.PROCESADO);
-        } else {
-            setEstadoDescarga(procesoManual.getId(), Estado.ERROR_INSERCION);
-        }
+            Platform.runLater(() -> {
+                piProgreso.setVisible(true);
+                piProgreso.setProgress(-1);
+                lbProgreso.setVisible(true);
+                lbProgreso.setText("PROCESANDO BOLETIN");
+                mostrarPanel(this.PANEL_ESPERA);
+            });
 
-        procesarManual(new ActionEvent());
-        cambioEnDatePicker(new ActionEvent());
+            Sql bd;
+            Multa multa;
+            List<String> lista = procesoManual.getValid();
+            List<Multa> list = new ArrayList();
+
+            for (String aux : lista) {
+                multa = new Multa();
+                multa.setCodigoBoletin(procesoManual.getCodigo());
+                multa.setFechaPublicacion(procesoManual.getFecha());
+                multa.setLinea(aux);
+                list.add(multa);
+            }
+
+            try {
+                bd = new Sql(Variables.con);
+
+                for (int i = 0; i < list.size(); i++) {
+                    final int contador = i;
+                    final int total = list.size();
+
+                    Platform.runLater(() -> {
+                        int contadour = contador + 1;
+                        double counter = contador + 1;
+                        double toutal = total;
+                        lbProgreso.setText("INSERTANDO " + contadour + " de " + total);
+                        piProgreso.setProgress(counter / toutal);
+                    });
+
+                    multa = list.get(i);
+                    bd.ejecutar(multa.SQLCrear());
+                }
+
+                bd.close();
+                setEstadoDescarga(procesoManual.getId(), Estado.PROCESADO);
+
+            } catch (SQLException ex) {
+                setEstadoDescarga(procesoManual.getId(), Estado.ERROR_INSERCION);
+                Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            Platform.runLater(() -> {
+                piProgreso.setProgress(1);
+                piProgreso.setVisible(false);
+                lbProgreso.setText("");
+                lbProgreso.setVisible(false);
+                procesarManual(new ActionEvent());
+                cambioEnDatePicker(new ActionEvent());
+            });
+
+        });
+        a.start();
     }
 
     private boolean insertMultas(List<Multa> list) {
@@ -529,6 +569,8 @@ public class WinC implements Initializable {
                 aux = it.next();
                 bd.ejecutar(aux.SQLCrear());
             }
+
+            bd.close();
 
             return true;
         } catch (SQLException ex) {

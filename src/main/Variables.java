@@ -28,7 +28,7 @@ public class Variables {
         if (!fichero.exists()) {
             fichero.mkdirs();
         }
-        try {
+        try { 
             temporal.createNewFile();
         } catch (IOException ex) {
             Logger.getLogger(Variables.class.getName()).log(Level.SEVERE, null, ex);

@@ -832,7 +832,7 @@ public class WinC implements Initializable {
     }
 
     @FXML
-    private void editarBoletin(ActionEvent event){
+    void editarBoletin(ActionEvent event){
         ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
         
         textArea.setText(mt.getDatos());
@@ -840,12 +840,12 @@ public class WinC implements Initializable {
     }
     
     @FXML
-    private void guardarBoletin(ActionEvent event){
+    void guardarBoletin(ActionEvent event){
         
     }
     
     @FXML 
-    private void volverEditar(ActionEvent event){
+    void volverEditar(ActionEvent event){
         textArea.setText("");
         mostrarPanel(this.PANEL_PRINCIPAL);
     }

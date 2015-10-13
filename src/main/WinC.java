@@ -13,8 +13,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +36,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -61,6 +60,9 @@ public class WinC implements Initializable {
 
     @FXML
     private AnchorPane panelEspera;
+
+    @FXML
+    private AnchorPane panelEditar;
 
     @FXML
     private DatePicker dpFecha;
@@ -115,6 +117,10 @@ public class WinC implements Initializable {
 
     @FXML
     private Label lbInvalid;
+    
+    @FXML
+    private TextArea textArea;
+    
     //</editor-fold>
 
     private ProcesoManual procesoManual;
@@ -125,6 +131,7 @@ public class WinC implements Initializable {
     private final int PANEL_PRINCIPAL = 1;
     private final int PANEL_MANUAL = 2;
     private final int PANEL_ESPERA = 3;
+    private final int PANEL_EDITAR = 4;
     private int CONTADOR_TOTAL = 0;
     private int CONTADOR_PROCESADOS = 0;
     private int CONTADOR_ERRORES = 0;
@@ -145,22 +152,32 @@ public class WinC implements Initializable {
                 panelPrincipal.setVisible(false);
                 panelManual.setVisible(false);
                 panelEspera.setVisible(false);
+                panelEditar.setVisible(false);
+
                 break;
             case 1:
                 panelPrincipal.setVisible(true);
                 panelManual.setVisible(false);
                 panelEspera.setVisible(false);
+                panelEditar.setVisible(false);
                 break;
             case 2:
                 panelPrincipal.setVisible(false);
                 panelManual.setVisible(true);
                 panelEspera.setVisible(false);
+                panelEditar.setVisible(false);
                 break;
             case 3:
                 panelPrincipal.setVisible(false);
                 panelManual.setVisible(false);
                 panelEspera.setVisible(true);
+                panelEditar.setVisible(false);
                 break;
+            case 4:
+                panelPrincipal.setVisible(false);
+                panelManual.setVisible(false);
+                panelEspera.setVisible(false);
+                panelEditar.setVisible(true);
         }
     }
 
@@ -398,6 +415,7 @@ public class WinC implements Initializable {
 
                         Platform.runLater(() -> {
                             int contadour = contador + 1;
+                            piProgreso.setProgress(-1);
                             lbProgreso.setText("INSERTANDO " + contadour + " de " + total);
                         });
 
@@ -812,4 +830,24 @@ public class WinC implements Initializable {
             Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    @FXML
+    private void editarBoletin(ActionEvent event){
+        ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
+        
+        textArea.setText(mt.getDatos());
+        mostrarPanel(this.PANEL_EDITAR);
+    }
+    
+    @FXML
+    private void guardarBoletin(ActionEvent event){
+        
+    }
+    
+    @FXML 
+    private void volverEditar(ActionEvent event){
+        textArea.setText("");
+        mostrarPanel(this.PANEL_PRINCIPAL);
+    }
+
 }

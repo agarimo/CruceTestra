@@ -44,6 +44,7 @@ import javafx.util.Callback;
 import util.Dates;
 import util.Files;
 import util.Sql;
+import util.Varios;
 
 /**
  *
@@ -117,12 +118,11 @@ public class WinC implements Initializable {
 
     @FXML
     private Label lbInvalid;
-    
+
     @FXML
     private TextArea textArea;
-    
-    //</editor-fold>
 
+    //</editor-fold>
     private ProcesoManual procesoManual;
 
     ObservableList<ModeloTabla> listaTabla;
@@ -538,6 +538,8 @@ public class WinC implements Initializable {
             try {
                 bd = new Sql(Variables.con);
 
+                bd.ejecutar("DELETE FROM datagest.cruceTestra where codigoEdicto=" + procesoManual.getCodigo());
+
                 for (int i = 0; i < list.size(); i++) {
                     final int contador = i;
                     final int total = list.size();
@@ -832,22 +834,56 @@ public class WinC implements Initializable {
     }
 
     @FXML
-    void editarBoletin(ActionEvent event){
+    void editarBoletin(ActionEvent event) {
         ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
-        
+
         textArea.setText(mt.getDatos());
         mostrarPanel(this.PANEL_EDITAR);
     }
-    
+
     @FXML
-    void guardarBoletin(ActionEvent event){
-        
-    }
-    
-    @FXML 
-    void volverEditar(ActionEvent event){
-        textArea.setText("");
-        mostrarPanel(this.PANEL_PRINCIPAL);
+    void guardarBoletin(ActionEvent event) {
+        Sql bd;
+        String datos;
+        ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
+
+        datos = textArea.getText().trim();
+
+        if (guardarBoletin(mt.getCodigo(), datos)) {
+            volverEditar(new ActionEvent());
+        } else {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("ERROR");
+            alert.setHeaderText("ERROR SQL");
+            alert.setContentText("Se ha producido un error en la BBDD");
+            alert.showAndWait();
+            
+            volverEditar(new ActionEvent());
+        }
     }
 
+    private boolean guardarBoletin(String idEdicto, String datos) {
+        Sql bd;
+
+        try {
+            bd = new Sql(Variables.con);
+            bd.ejecutar("UPDATE datagest.descarga SET "
+                    + "datos=" + Varios.entrecomillar(datos) + " "
+                    + "where idDescarga="
+                    + "(select idDescarga from datagest.edicto where "
+                    + "idEdicto=" + Varios.entrecomillar(idEdicto) + ")");
+
+            return true;
+        } catch (SQLException ex) {
+            Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
+
+    @FXML
+    void volverEditar(ActionEvent event) {
+        textArea.setText("");
+        mostrarPanel(this.PANEL_PRINCIPAL);
+        cambioEnDatePicker(new ActionEvent());
+    }
 }

@@ -40,6 +40,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 import util.Dates;
 import util.Files;
@@ -483,8 +484,12 @@ public class WinC implements Initializable {
         String datos;
         String[] split;
         datos = mt.getDatos();
-        datos = limpiar(datos, mt.getCsv()).trim();
+        datos = limpiar(datos, mt.getCsv());
         split = datos.split(System.lineSeparator());
+        System.out.println("Lenght split: " + split.length);
+
+        String[] split1 = datos.split("\n");
+        System.out.println("Lenght split1: " + split1.length);
 
         List lista = new ArrayList();
         lista.addAll(Arrays.asList(split));
@@ -626,6 +631,8 @@ public class WinC implements Initializable {
 
         String[] split = aux.split(System.lineSeparator());
 
+        
+        //TODO El puto error está en el ciclo FOR!!!
         for (String split1 : split) {
 
             if (split1.contains("https://sede.dgt.gob.es")) {
@@ -642,8 +649,9 @@ public class WinC implements Initializable {
                 print = true;
             }
         }
-
-        return sb.toString();
+//
+        aux = sb.toString();
+        return aux.trim();
     }
 
     private String selectMultas(String datos) {
@@ -836,35 +844,40 @@ public class WinC implements Initializable {
     @FXML
     void editarBoletin(ActionEvent event) {
         ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
-
-        textArea.setText(mt.getDatos());
+        textArea.setText(mt.getDatos().replace("\n", System.lineSeparator()));
         mostrarPanel(this.PANEL_EDITAR);
     }
 
     @FXML
     void guardarBoletin(ActionEvent event) {
-        Sql bd;
-        String datos;
+        String aux;
+        StringBuilder datos = new StringBuilder();
         ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
 
-        datos = textArea.getText().trim();
+        Iterator it = textArea.getParagraphs().iterator();
 
-        if (guardarBoletin(mt.getCodigo(), datos)) {
+        while (it.hasNext()) {
+            aux = (String) it.next().toString();
+            datos.append(aux);
+            datos.append(System.lineSeparator());
+        }
+
+        if (guardarBoletin(mt.getCodigo(), datos.toString())) {
             volverEditar(new ActionEvent());
+            cambioEnDatePicker(new ActionEvent());
         } else {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("ERROR");
             alert.setHeaderText("ERROR SQL");
             alert.setContentText("Se ha producido un error en la BBDD");
             alert.showAndWait();
-            
+
             volverEditar(new ActionEvent());
         }
     }
 
     private boolean guardarBoletin(String idEdicto, String datos) {
         Sql bd;
-
         try {
             bd = new Sql(Variables.con);
             bd.ejecutar("UPDATE datagest.descarga SET "
@@ -872,7 +885,6 @@ public class WinC implements Initializable {
                     + "where idDescarga="
                     + "(select idDescarga from datagest.edicto where "
                     + "idEdicto=" + Varios.entrecomillar(idEdicto) + ")");
-
             return true;
         } catch (SQLException ex) {
             Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
@@ -884,6 +896,5 @@ public class WinC implements Initializable {
     void volverEditar(ActionEvent event) {
         textArea.setText("");
         mostrarPanel(this.PANEL_PRINCIPAL);
-        cambioEnDatePicker(new ActionEvent());
     }
 }

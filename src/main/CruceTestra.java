@@ -31,9 +31,9 @@ public class CruceTestra extends Application {
      */
     public static void main(String[] args) {
         Variables.inicializar();
-        testeo();
-        System.exit(0);
-//        launch(args);
+//        testeo();
+//        System.exit(0);
+        launch(args);
     }
 
     public static void testeo() {
@@ -42,13 +42,13 @@ public class CruceTestra extends Application {
         try {
             Sql bd = new Sql(Variables.con);
             datos = bd.getString("SELECT datos FROM datagest.descarga where idDescarga="
-                    + "(SELECT idDescarga from datagest.edicto where idEdicto='000000000509-410917')");
+                    + "(SELECT idDescarga from datagest.edicto where idEdicto='000000001524-360000')");
         } catch (SQLException ex) {
             Logger.getLogger(CruceTestra.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         datos = limpiar(datos, "TTRAPU-60I08L-5ASD2E-F4EF43");
-        System.out.println(datos);
+//        System.out.println(datos);
 
     }
 
@@ -60,16 +60,21 @@ public class CruceTestra extends Application {
         aux = datos.replace("CSV: " + csv, "");
         aux = aux.replace("Validar en: https://sede.dgt.gob.es/", "");
 
-        String[] split = aux.split(System.lineSeparator());
+        String[] split = aux.split("\n");
+        
+        System.out.println(split.length);
 
         for (String split1 : split) {
+            
+            
+            System.out.println(split1.trim());
+            System.out.println("------------------------------------------------");
 
             if (split1.contains("https://sede.dgt.gob.es")) {
                 print = false;
             }
 
             if (print) {
-                System.out.println(split1.trim());
                 sb.append(split1.trim());
                 sb.append(System.lineSeparator());
             }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 <?import java.lang.*?>
@@ -16,17 +17,16 @@
                <children>
                   <DatePicker fx:id="dpFecha" layoutX="7.0" layoutY="14.0" onAction="#cambioEnDatePicker" prefWidth="150.0" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="15.0" />
                   <Button fx:id="btProcesar" layoutX="10.0" layoutY="48.0" mnemonicParsing="false" onAction="#procesar" prefWidth="150.0" text="Procesar" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="48.0" />
-                  <Button fx:id="btArchivo" layoutX="7.0" layoutY="134.0" mnemonicParsing="false" onAction="#generarArchivo" prefHeight="25.0" prefWidth="150.0" text="Generar Archivo" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="128.0">
+                  <Button fx:id="btArchivo" layoutX="7.0" layoutY="164.0" mnemonicParsing="false" onAction="#generarArchivo" prefHeight="25.0" prefWidth="150.0" text="Generar Archivo" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="164.0">
                      <opaqueInsets>
                         <Insets />
                      </opaqueInsets></Button>
-                  <Button fx:id="btAbrirCarpeta" layoutX="7.0" layoutY="168.0" mnemonicParsing="false" onAction="#abrirCarpeta" prefHeight="25.0" prefWidth="150.0" text="Abrir Carpeta" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="160.0" />
-                  <ProgressIndicator layoutX="7.0" layoutY="195.0" prefHeight="75.0" prefWidth="150.0" progress="0.0" visible="false" AnchorPane.bottomAnchor="79.0" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" />
-                  <Label alignment="CENTER" contentDisplay="CENTER" layoutX="7.0" layoutY="269.0" prefHeight="25.0" prefWidth="150.0" textAlignment="CENTER" visible="false" AnchorPane.bottomAnchor="55.0" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" />
-                  <Button fx:id="btRefrescar" layoutX="7.0" layoutY="312.0" mnemonicParsing="false" onAction="#refrescar" prefHeight="25.0" prefWidth="150.0" text="Refrescar" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" />
+                  <Button fx:id="btAbrirCarpeta" layoutX="7.0" layoutY="196.0" mnemonicParsing="false" onAction="#abrirCarpeta" prefHeight="25.0" prefWidth="150.0" text="Abrir Carpeta" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="196.0" />
+                  <Button fx:id="btCruce" layoutX="7.0" layoutY="312.0" mnemonicParsing="false" onAction="#procesoCruce" prefHeight="25.0" prefWidth="150.0" text="Cruzar Multas" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" />
                   <Button fx:id="btProcesarM" layoutX="7.0" layoutY="83.0" mnemonicParsing="false" onAction="#procesarManual" prefHeight="25.0" prefWidth="150.0" text="Procesar Manualmente" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="80.0" />
-                  <Separator layoutX="7.0" layoutY="119.0" prefHeight="3.0" prefWidth="150.0" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="115.0" />
+                  <Separator layoutX="7.0" layoutY="151.0" prefHeight="3.0" prefWidth="150.0" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="151.0" />
                   <Separator layoutX="7.0" layoutY="296.0" prefHeight="3.0" prefWidth="150.0" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" />
+                  <Button fx:id="btEditarBoletin" layoutX="7.0" layoutY="115.0" mnemonicParsing="false" onAction="#editarBoletin" prefHeight="25.0" prefWidth="150.0" text="Editar Boletin" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="115.0" />
                </children>
             </AnchorPane>
           <AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="160.0" prefWidth="100.0">
@@ -37,7 +37,6 @@
                            <children>
                               <TextArea fx:id="textArea" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="54.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0" />
                               <Button layoutX="297.0" layoutY="315.0" mnemonicParsing="false" onAction="#guardarBoletin" prefWidth="60.0" text="Guardar" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
-                              <Button layoutX="14.0" layoutY="315.0" mnemonicParsing="false" onAction="#volverEditar" prefWidth="60.0" text="Volver" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" />
                            </children>
                         </AnchorPane>
                         <AnchorPane fx:id="panelEspera" prefHeight="200.0" prefWidth="200.0" visible="false">
@@ -50,7 +49,7 @@
                               </Label>
                            </children>
                         </AnchorPane>
-                        <AnchorPane fx:id="panelPrincipal" prefHeight="200.0" prefWidth="200.0">
+                        <AnchorPane fx:id="panelPrincipal" prefHeight="200.0" prefWidth="200.0" visible="false">
                            <children>
                               <TableView fx:id="tabla" layoutX="202.0" layoutY="42.0" prefHeight="263.0" prefWidth="325.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="202.0" AnchorPane.topAnchor="14.0">
                                 <columns>
@@ -61,7 +60,6 @@
                                     <ContextMenu>
                                       <items>
                                         <MenuItem mnemonicParsing="false" onAction="#verBoletin" text="Ver Boletin" />
-                                          <MenuItem mnemonicParsing="false" onAction="#editarBoletin" text="Editar Boletin" />
                                           <MenuItem mnemonicParsing="false" onAction="#eliminarBoletin" text="Eliminar Boletin" />
                                       </items>
                                     </ContextMenu>
@@ -92,6 +90,31 @@
                               <Label fx:id="lbValid" alignment="CENTER" layoutX="102.0" layoutY="302.0" prefHeight="17.0" prefWidth="38.0" text="..." AnchorPane.bottomAnchor="31.0" AnchorPane.leftAnchor="102.0" />
                               <Label fx:id="lbInvalid" alignment="CENTER" layoutX="102.0" layoutY="319.0" prefHeight="17.0" prefWidth="38.0" text="..." AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="102.0" />
                            </children></AnchorPane>
+                        <AnchorPane fx:id="panelCruce" prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <AnchorPane layoutX="14.0" layoutY="75.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="200.0" style="-fx-border-color: grey;" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
+                                 <children>
+                                    <Label alignment="CENTER" layoutX="3.0" layoutY="6.0" prefHeight="17.0" prefWidth="325.0" text="DATAGEST" AnchorPane.leftAnchor="2.0" AnchorPane.topAnchor="6.0" />
+                                    <Label alignment="CENTER" layoutX="3.0" layoutY="27.0" prefHeight="17.0" prefWidth="325.0" text="Label" AnchorPane.leftAnchor="2.0" AnchorPane.topAnchor="25.0" />
+                                    <Label alignment="CENTER" layoutX="384.0" layoutY="6.0" prefHeight="17.0" prefWidth="325.0" text="HISTORICO" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="6.0" />
+                                    <Label alignment="CENTER" layoutX="384.0" layoutY="27.0" prefHeight="17.0" prefWidth="325.0" text="Label" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="25.0" />
+                                    <Separator layoutX="347.0" layoutY="2.0" orientation="VERTICAL" prefHeight="48.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="346.0" AnchorPane.rightAnchor="346.0" AnchorPane.topAnchor="2.0" />
+                                 </children>
+                              </AnchorPane>
+                              <TableView layoutX="14.0" layoutY="75.0" prefHeight="200.0" prefWidth="524.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="190.0" AnchorPane.topAnchor="75.0">
+                                <columns>
+                                  <TableColumn prefWidth="75.0" text="EXPEDIENTE" />
+                                  <TableColumn prefWidth="75.0" text="NIF" />
+                                    <TableColumn prefWidth="75.0" text="MATRICULA" />
+                                </columns>
+                                 <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                 </columnResizePolicy>
+                              </TableView>
+                              <Label alignment="CENTER" layoutX="14.0" layoutY="318.0" prefHeight="20.0" prefWidth="700.0" text="IDBL" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" />
+                              <Label alignment="CENTER" contentDisplay="CENTER" layoutX="14.0" layoutY="294.0" prefHeight="20.0" prefWidth="700.0" text="TESTRA" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" />
+                           </children>
+                        </AnchorPane>
                      </children>
                   </StackPane>
                </children>

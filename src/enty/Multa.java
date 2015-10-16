@@ -96,9 +96,9 @@ public class Multa {
     public String getLinea() {
         return linea;
     }
-    
-    public void setLineaQuery(String linea){
-        this.linea=linea;
+
+    public void setLineaQuery(String linea) {
+        this.linea = linea;
     }
 
     public void setLinea(String linea) {
@@ -108,16 +108,16 @@ public class Multa {
 
     @Override
     public String toString() {
-        String separador="|";
-        return fechaPublicacion+separador+
-                codigoBoletin+separador+
-                boletin+separador+
-                origen+separador+
-                fechaMulta+separador+
-                expediente+separador+
-                nif+separador+
-                matricula+separador+
-                linea;
+        String separador = "|";
+        return fechaPublicacion + separador
+                + codigoBoletin + separador
+                + boletin + separador
+                + origen + separador
+                + fechaMulta + separador
+                + expediente + separador
+                + nif + separador
+                + matricula + separador
+                + linea;
     }
 
     private void splitLinea(String linea) {
@@ -170,9 +170,9 @@ public class Multa {
         aux = sb.toString();
         this.nif = Regex.buscar(patron, aux);
     }
-    
-    public static String SQLBuscar(Date fecha){
-        return "SELECT * FROM datagest.cruceTestra where fechaPublicacion="+Varios.entrecomillar(Dates.imprimeFecha(fecha));
+
+    public static String SQLBuscar(Date fecha) {
+        return "SELECT * FROM datagest.cruceTestra where fechaPublicacion=" + Varios.entrecomillar(Dates.imprimeFecha(fecha));
     }
 
     public String SQLCrear() {
@@ -188,5 +188,4 @@ public class Multa {
                 + Varios.entrecomillar(this.linea)
                 + ")";
     }
-
 }

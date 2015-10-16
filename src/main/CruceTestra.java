@@ -42,48 +42,51 @@ public class CruceTestra extends Application {
         try {
             Sql bd = new Sql(Variables.con);
             datos = bd.getString("SELECT datos FROM datagest.descarga where idDescarga="
-                    + "(SELECT idDescarga from datagest.edicto where idEdicto='000000001524-360000')");
+                    + "(SELECT idDescarga from datagest.edicto where idEdicto='000000000489-180877')");
         } catch (SQLException ex) {
             Logger.getLogger(CruceTestra.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        datos = limpiar(datos, "TTRAPU-60I08L-5ASD2E-F4EF43");
+        datos = limpiar(datos, "TTRAPU-60Y48B-1CMH14-7EFA8C");
 //        System.out.println(datos);
 
     }
-
-    private static String limpiar(String datos, String csv) {
+    
+    private static String limpiar(String datos, String csv){
         StringBuilder sb = new StringBuilder();
         String aux;
         boolean print = false;
 
         aux = datos.replace("CSV: " + csv, "");
         aux = aux.replace("Validar en: https://sede.dgt.gob.es/", "");
-
-        String[] split = aux.split("\n");
+        aux= aux.replace("\n", System.lineSeparator());
         
+        String[] split = aux.split(System.lineSeparator());
+
         System.out.println(split.length);
-
+        
+        int a=1;
         for (String split1 : split) {
-            
-            
-            System.out.println(split1.trim());
-            System.out.println("------------------------------------------------");
 
+            System.out.println("Linea "+a+": "+split1);
+            a++;
+            
             if (split1.contains("https://sede.dgt.gob.es")) {
                 print = false;
             }
 
             if (print) {
+                System.err.println(split1);
                 sb.append(split1.trim());
                 sb.append(System.lineSeparator());
             }
 
-            if (split1.contains("EXPEDIENTE SANCIONADO/A IDENTIF") || split1.contains("EXPEDIENTE DENUNCIADO/A IDENTIF")) {
+            if (split1.contains("EXPEDIENTE SANCIONADO/A IDENTIF")
+                    || split1.contains("EXPEDIENTE DENUNCIADO/A IDENTIF")) {
                 print = true;
             }
         }
-
-        return sb.toString();
+//
+        return sb.toString().trim();
     }
 }

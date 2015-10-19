@@ -1,11 +1,14 @@
 package main;
 
+import enty.Cruce;
 import enty.Descarga;
 import enty.Estado;
+import enty.ModeloCruce;
 import enty.ModeloTabla;
 import enty.Multa;
 import enty.ProcesoCruce;
 import enty.ProcesoManual;
+import enty.TipoCruce;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -125,6 +128,54 @@ public class WinC implements Initializable {
 
     @FXML
     private TextArea textArea;
+    
+    @FXML
+    private Label lbCountDatagest;
+    
+    @FXML
+    private Label lbCountIdbl;
+    
+    @FXML
+    private Label lbLineDatagest;
+    
+    @FXML
+    private Label lbLineIdbl;
+    
+    @FXML
+    private TableView tvCruce;
+    
+    @FXML
+    private TableColumn expedienteCCL;
+    
+    @FXML
+    private TableColumn nifCCL;
+    
+    @FXML
+    private TableColumn matriculaCCL;
+    
+    @FXML
+    private Button btIniciaCruce;
+    
+    @FXML
+    private Button btGeneraArchivoCruce;
+    
+    @FXML
+    private Button btEliminarCruce;
+    
+    @FXML
+    private ProgressIndicator piProgresoCruce;
+    
+    @FXML
+    private Label lbProgresoCruce;
+    
+    @FXML
+    private Label lbProcesoCruce;
+    
+    @FXML
+    private AnchorPane panelBotonesCruce;
+    
+    @FXML
+    private AnchorPane panelProgresoCruce;
 
     //</editor-fold>
     private ProcesoManual procesoManual;
@@ -132,12 +183,16 @@ public class WinC implements Initializable {
 
     ObservableList<ModeloTabla> listaTabla;
     ObservableList<String> listaManual;
+    ObservableList<ModeloCruce> listaCruce;
 
     private final int PANEL_PRINCIPAL = 1;
     private final int PANEL_MANUAL = 2;
     private final int PANEL_ESPERA = 3;
     private final int PANEL_EDITAR = 4;
     private final int PANEL_CRUCE = 5;
+    
+    private final int PANEL_CRUCE_BOTONES=1;
+    private final int PANEL_CRUCE_PROGRESO=2;
 
     private int CONTADOR_TOTAL = 0;
     private int CONTADOR_PROCESADOS = 0;
@@ -151,7 +206,9 @@ public class WinC implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         iniciarTablaProcesar();
         iniciarListaManual();
+        iniciarTablaCruce();
         mostrarPanel(0);
+        mostrarPanelCruce(this.PANEL_CRUCE_BOTONES);
         isProcesandoM = false;
         isEditandoB = false;
         isCruzando = false;
@@ -303,6 +360,63 @@ public class WinC implements Initializable {
 
         listaManual = FXCollections.observableArrayList();
         lvManual.setItems(listaManual);
+    }
+    
+    private void iniciarTablaCruce(){
+        expedienteCCL.setCellValueFactory(new PropertyValueFactory<>("expediente"));
+        expedienteCCL.setCellFactory(column -> {
+            return new TableCell<ModeloCruce, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    this.setAlignment(Pos.CENTER);
+
+                    if (item == null || empty) {
+                        setText(null);
+                        setStyle("");
+                    } else {
+                        setText(item);
+                    }
+                }
+            };
+        });
+        nifCCL.setCellValueFactory(new PropertyValueFactory<>("nif"));
+        nifCCL.setCellFactory(column -> {
+            return new TableCell<ModeloCruce, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    this.setAlignment(Pos.CENTER);
+
+                    if (item == null || empty) {
+                        setText(null);
+                        setStyle("");
+                    } else {
+                        setText(item);
+                    }
+                }
+            };
+        });
+        matriculaCCL.setCellValueFactory(new PropertyValueFactory<>("matricula"));
+        matriculaCCL.setCellFactory(column -> {
+            return new TableCell<ModeloCruce, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    this.setAlignment(Pos.CENTER);
+
+                    if (item == null || empty) {
+                        setText(null);
+                        setStyle("");
+                    } else {
+                        setText(item);
+                    }
+                }
+            };
+        });
+
+        listaCruce = FXCollections.observableArrayList();
+        tvCruce.setItems(listaCruce);
     }
 
     @FXML
@@ -609,6 +723,8 @@ public class WinC implements Initializable {
         List<Multa> list = new ArrayList();
         Multa multa;
         String[] split = datos.split(System.lineSeparator());
+        
+        System.out.println(aux.getCodigo());
 
         for (String split1 : split) {
             if (!split1.equals("")) {
@@ -832,6 +948,20 @@ public class WinC implements Initializable {
         mostrarPanel(this.PANEL_PRINCIPAL);
     }
 
+    private boolean comprobarBoletines(){
+        ModeloTabla mt;
+        Iterator<ModeloTabla> it =listaTabla.iterator();
+        
+        while(it.hasNext()){
+            mt=it.next();
+            
+            if(mt.getEstado()!=Estado.PROCESADO.getValue()){
+                return true;
+            }
+        }
+        return false;
+    }
+    
     @FXML
     void procesoCruce(ActionEvent event) {
         if (isCruzando) {
@@ -854,22 +984,105 @@ public class WinC implements Initializable {
             btAbrirCarpeta.setDisable(true);
             btProcesarM.setDisable(true);
 
-//                cargarProcesarManual(mt);
+            iniciaCruce(fecha);
         }
         isCruzando = !isCruzando;
     }
     
-    private boolean comprobarBoletines(){
-        ModeloTabla mt;
-        Iterator<ModeloTabla> it =listaTabla.iterator();
+    void mostrarPanelCruce(int a){
+        
+        switch(a){
+            case 1:
+                panelBotonesCruce.setVisible(true);
+                panelProgresoCruce.setVisible(false);
+                break;
+            case 2:
+                panelBotonesCruce.setVisible(false);
+                panelProgresoCruce.setVisible(true);
+                break;
+        }
+    }
+    
+    void iniciaCruce(Date fecha){
+        listaCruce.clear();
+        Thread a = new Thread(() -> {
+
+            Platform.runLater(() -> {
+                mostrarPanelCruce(this.PANEL_CRUCE_PROGRESO);
+                piProgresoCruce.setProgress(-1);
+                lbProcesoCruce.setText("CARGANDO DATOS");
+                lbProgresoCruce.setText("La operacion puede tardar varios minutos");
+                lbProgresoCruce.setWrapText(true);
+                lbProgresoCruce.setAlignment(Pos.CENTER);
+                lbCountDatagest.setText("...Cargando...");
+                lbCountIdbl.setText("...Cargando...");
+            });
+
+            this.procesoCruce = new ProcesoCruce();
+            this.procesoCruce.setListaTestra(Sql.listaCruce(TipoCruce.TESTRA, fecha));
+            this.procesoCruce.setListaIdbl(Sql.listaCruce(TipoCruce.IDBL, fecha));
+            
+
+            Platform.runLater(() -> {
+                mostrarPanelCruce(this.PANEL_CRUCE_BOTONES);
+                piProgresoCruce.setProgress(0);
+                lbProcesoCruce.setText("");
+                lbProgresoCruce.setText("");
+                lbCountDatagest.setText(Integer.toString(this.procesoCruce.getTotalTestra()));
+                lbCountIdbl.setText(Integer.toString(this.procesoCruce.getTotalIdbl()));
+            });
+        });
+        a.start();
+    }
+    
+    void cargaDatosCruce(List<ModeloCruce> list){
+  
+    }
+    
+    void addDatosCruce(Cruce testra, Cruce idbl){
+        ModeloCruce mc = new ModeloCruce();
+        
+        mc.setId(testra.getId());
+        mc.setExpediente(testra.getExpediente());
+        mc.setNif(testra.getNif());
+        mc.setMatricula(testra.getMatricula());
+        mc.setLinea(testra.getLinea());
+        
+    }
+    
+    @FXML
+    void botonIniciaCruce(ActionEvent event){
+        int existen=0;
+        int noexisten=0;
+        Cruce aux;
+        Iterator<Cruce> it = this.procesoCruce.getListaTestra().iterator();
+        
+        System.out.println("iniciando");
         
         while(it.hasNext()){
-            mt=it.next();
+            aux=it.next();
             
-            if(mt.getEstado()!=Estado.PROCESADO.getValue()){
-                return true;
+            if(this.procesoCruce.cruzarMulta(aux)){
+//                System.out.println("Existe: "+aux.getLinea());
+                existen++;
+            }else{
+                System.err.println("No existe: "+aux.getExpediente()+" "+aux.getNif()+" "+aux.getLinea());
+                noexisten++;
             }
         }
-        return false;
+        System.out.println("fin");
+        System.out.println("Existen: "+existen);
+        System.out.println("No existen: "+noexisten);
     }
+    
+    @FXML
+    void botonGeneraArchivoCruce(ActionEvent event){
+        
+    }
+    
+    @FXML
+    void botonEliminarCruce(ActionEvent event){
+        
+    }
+    
 }

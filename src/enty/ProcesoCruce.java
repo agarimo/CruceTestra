@@ -1,8 +1,6 @@
 package enty;
 
-import java.util.Date;
 import java.util.List;
-import main.Sql;
 
 /**
  *
@@ -43,7 +41,6 @@ public class ProcesoCruce {
     }
 
     public boolean cruzarMulta(Cruce aux) {
-
-        return true;
+        return listaIdbl.contains(aux);
     }
 }

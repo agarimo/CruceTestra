@@ -22,6 +22,8 @@ public class CruceTestra extends Application {
 
         Scene scene = new Scene(root);
 
+        stage.setMinHeight(380);
+        stage.setMinWidth(900);
         stage.setScene(scene);
         stage.show();
     }
@@ -42,12 +44,12 @@ public class CruceTestra extends Application {
         try {
             Sql bd = new Sql(Variables.con);
             datos = bd.getString("SELECT datos FROM datagest.descarga where idDescarga="
-                    + "(SELECT idDescarga from datagest.edicto where idEdicto='000000000489-180877')");
+                    + "(SELECT idDescarga from datagest.edicto where idEdicto='000000007492-280796')");
         } catch (SQLException ex) {
             Logger.getLogger(CruceTestra.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        datos = limpiar(datos, "TTRAPU-60Y48B-1CMH14-7EFA8C");
+        datos = limpiar(datos, "TTRAPU-70U9NC-4D1M1F-20B21E");
 //        System.out.println(datos);
 
     }

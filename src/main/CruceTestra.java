@@ -32,7 +32,7 @@ public class CruceTestra extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Variables.inicializar();
+        Var.inicializar();
 //        testeo();
 //        System.exit(0);
         launch(args);
@@ -42,7 +42,7 @@ public class CruceTestra extends Application {
         String datos = null;
 
         try {
-            Sql bd = new Sql(Variables.con);
+            Sql bd = new Sql(Var.con);
             datos = bd.getString("SELECT datos FROM datagest.descarga where idDescarga="
                     + "(SELECT idDescarga from datagest.edicto where idEdicto='000000007492-280796')");
         } catch (SQLException ex) {

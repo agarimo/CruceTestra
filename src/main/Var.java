@@ -10,7 +10,7 @@ import util.Conexion;
  *
  * @author Agarimo
  */
-public class Variables {
+public class Var {
 
     public static Conexion con;
     public static File fichero;
@@ -31,7 +31,7 @@ public class Variables {
         try { 
             temporal.createNewFile();
         } catch (IOException ex) {
-            Logger.getLogger(Variables.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Var.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -39,15 +39,15 @@ public class Variables {
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Variables.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Var.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     private static void setConexion() {
         con = new Conexion();
 //        con.setDireccion("oficina.redcedeco.net");
-        con.setDireccion("192.168.1.40");
-//        con.setDireccion("localhost");
+//        con.setDireccion("192.168.1.40");
+        con.setDireccion("localhost");
         con.setUsuario("admin");
         con.setPass("IkuinenK@@m.s84");
         con.setPuerto("3306");

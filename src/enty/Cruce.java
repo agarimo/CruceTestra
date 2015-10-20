@@ -10,6 +10,7 @@ import java.util.Objects;
 public class Cruce {
 
     int id;
+    String codigoBoletin;
     TipoCruce tipo;
     Date fechaPublicacion;
     String expediente;
@@ -30,6 +31,14 @@ public class Cruce {
         this.id = id;
     }
 
+    public String getCodigoBoletin() {
+        return codigoBoletin;
+    }
+
+    public void setCodigoBoletin(String codigoBoletin) {
+        this.codigoBoletin = codigoBoletin;
+    }
+    
     public Date getFechaPublicacion() {
         return fechaPublicacion;
     }
@@ -111,5 +120,4 @@ public class Cruce {
         }
         return true;
     }
-
 }

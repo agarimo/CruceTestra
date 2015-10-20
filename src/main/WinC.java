@@ -678,7 +678,7 @@ public class WinC implements Initializable {
             }
 
             try {
-                bd = new Sql(Variables.con);
+                bd = new Sql(Var.con);
 
                 bd.ejecutar("DELETE FROM datagest.cruceTestra where codigoEdicto=" + procesoManual.getCodigo());
 
@@ -796,9 +796,9 @@ public class WinC implements Initializable {
         ModeloTabla mt = (ModeloTabla) tabla.getSelectionModel().getSelectedItem();
 
         if (mt != null) {
-            Files.escribeArchivo(Variables.temporal, mt.getDatos());
+            Files.escribeArchivo(Var.temporal, mt.getDatos());
             try {
-                Desktop.getDesktop().browse(Variables.temporal.toURI());
+                Desktop.getDesktop().browse(Var.temporal.toURI());
             } catch (IOException ex) {
                 Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -821,7 +821,7 @@ public class WinC implements Initializable {
             Date fecha = Dates.asDate(dpFecha.getValue());
 
             if (fecha != null) {
-                File archivo = new File(Variables.fichero, Dates.imprimeFecha(fecha) + ".txt");
+                File archivo = new File(Var.fichero, Dates.imprimeFecha(fecha) + ".txt");
                 archivo.createNewFile();
                 generarArchivo(fecha, archivo);
             }
@@ -871,7 +871,7 @@ public class WinC implements Initializable {
     @FXML
     void abrirCarpeta(ActionEvent event) {
         try {
-            Desktop.getDesktop().browse(Variables.fichero.toURI());
+            Desktop.getDesktop().browse(Var.fichero.toURI());
         } catch (IOException ex) {
             Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -1066,7 +1066,7 @@ public class WinC implements Initializable {
 //                System.out.println("Existe: "+aux.getLinea());
                 existen++;
             }else{
-                System.err.println("No existe: "+aux.getExpediente()+" "+aux.getNif()+" "+aux.getLinea());
+                System.err.println("No existe: "+aux.getCodigoBoletin()+" | "+aux.getExpediente()+" | "+aux.getNif()+" | "+aux.getLinea());
                 noexisten++;
             }
         }

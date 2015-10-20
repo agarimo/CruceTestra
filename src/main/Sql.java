@@ -33,7 +33,7 @@ public class Sql extends util.Sql {
         Iterator<Multa> it = list.iterator();
 
         try {
-            bd = new Sql(Variables.con);
+            bd = new Sql(Var.con);
 
             while (it.hasNext()) {
                 aux = it.next();
@@ -54,7 +54,7 @@ public class Sql extends util.Sql {
         String query = "UPDATE datagest.descarga SET estadoCruce=" + estado.getValue() + " WHERE idDescarga=" + id;
 
         try {
-            bd = new Sql(Variables.con);
+            bd = new Sql(Var.con);
             bd.ejecutar(query);
             bd.close();
         } catch (SQLException ex) {
@@ -65,7 +65,7 @@ public class Sql extends util.Sql {
     public static boolean guardarBoletin(String idEdicto, String datos) {
         Sql bd;
         try {
-            bd = new Sql(Variables.con);
+            bd = new Sql(Var.con);
             bd.ejecutar("UPDATE datagest.descarga SET "
                     + "datos=" + Varios.entrecomillar(datos) + " "
                     + "where idDescarga="
@@ -85,7 +85,7 @@ public class Sql extends util.Sql {
         Descarga aux;
 
         try {
-            bd = new Sql(Variables.con);
+            bd = new Sql(Var.con);
             rs = bd.ejecutarQueryRs(query);
 
             while (rs.next()) {
@@ -113,7 +113,7 @@ public class Sql extends util.Sql {
         Multa aux;
 
         try {
-            bd = new Sql(Variables.con);
+            bd = new Sql(Var.con);
             rs = bd.ejecutarQueryRs(query);
 
             while (rs.next()) {
@@ -154,12 +154,17 @@ public class Sql extends util.Sql {
         }
 
         try {
-            bd = new Sql(Variables.con);
+            bd = new Sql(Var.con);
             rs = bd.ejecutarQueryRs(query);
 
             while (rs.next()) {
                 aux = new Cruce();
                 aux.setId(rs.getInt("id"));
+                if(tipo==TipoCruce.TESTRA){
+                    aux.setCodigoBoletin(rs.getString("codigoEdicto"));
+                }else{
+                    aux.setCodigoBoletin("IDBL");
+                }
                 aux.setFechaPublicacion(fecha);
                 aux.setExpediente(rs.getString("expediente"));
                 aux.setNif(rs.getString("nif"));

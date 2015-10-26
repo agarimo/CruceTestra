@@ -2,6 +2,8 @@ package main;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import util.Conexion;
@@ -13,22 +15,35 @@ import util.Conexion;
 public class Var {
 
     public static Conexion con;
+    public static List<String> strucFecha;
     public static File fichero;
     public static File temporal;
 
     public static void inicializar() {
         driver();
         setConexion();
-        fichero = new File("data");
-        temporal = new File("temp.txt");
         initFiles();
+        initStrucFecha();
+    }
+
+    private static void initStrucFecha() {
+        strucFecha = new ArrayList();
+
+        strucFecha.add("dd-MM-yyyy");
+        strucFecha.add("dd/MM/yyyy");
+        strucFecha.add("dd-MM-yy");
+        strucFecha.add("dd/MM/yy");
+
     }
 
     private static void initFiles() {
+        fichero = new File("data");
+        temporal = new File("temp.txt");
+
         if (!fichero.exists()) {
             fichero.mkdirs();
         }
-        try { 
+        try {
             temporal.createNewFile();
         } catch (IOException ex) {
             Logger.getLogger(Var.class.getName()).log(Level.SEVERE, null, ex);
@@ -46,8 +61,8 @@ public class Var {
     private static void setConexion() {
         con = new Conexion();
 //        con.setDireccion("oficina.redcedeco.net");
-//        con.setDireccion("192.168.1.40");
-        con.setDireccion("localhost");
+        con.setDireccion("192.168.1.40");
+//        con.setDireccion("localhost");
         con.setUsuario("admin");
         con.setPass("IkuinenK@@m.s84");
         con.setPuerto("3306");

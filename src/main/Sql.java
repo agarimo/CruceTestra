@@ -122,7 +122,7 @@ public class Sql extends util.Sql {
                 aux.setFechaPublicacion(Dates.imprimeFecha(rs.getDate("fechaPublicacion")));
                 aux.setCodigoBoletin(rs.getString("codigoEdicto"));
                 aux.setExpediente(rs.getString("expediente"));
-                aux.setFechaMulta(rs.getString("fechaMulta"));
+                aux.setFechaMulta(rs.getDate("fechaMulta"));
                 aux.setNif(rs.getString("nif"));
                 aux.setMatricula(rs.getString("matricula"));
                 aux.setLineaQuery(rs.getString("linea"));

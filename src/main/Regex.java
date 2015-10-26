@@ -17,15 +17,19 @@ public class Regex {
     private static Matcher mt;
 
     private static final String[] fechas = {
-        "[\\s][\\d]{2}[/-][\\d]{2}[/-][\\d]{4}[\\s]",
-        "[\\s][\\d]{4}[/-][\\d]{2}[/-][\\d]{2}[\\s]",
-        "[\\s][\\d]{2}[/-][\\d]{2}[/-][\\d]{2}[\\s]"
+        "[\\s][\\d]{2}[/-][\\d]{1,2}[/-][\\d]{4}[\\s]",
+        "[\\s][\\d]{4}[/-][\\d]{1,2}[/-][\\d]{2}[\\s]",
+        "[\\s][\\d]{2}[/-][\\d]{1,2}[/-][\\d]{2}[\\s]",
+        "[\\s][\\d]{1,2}[/-][\\d]{1,2}[/-]20[\\d]{2}[\\s]",
+        "[\\s]NO CONSTA[\\s]"
     };
 
     private static final String[] identificacion = {
-        "[\\s][0-9]{4,8}[TRWAGMYFPDXBNJZSQVHLCKE]{1}[\\s]",
-        "[\\s][ABCDEFGHJKLMNPQRSVW]{1}[0-9]{8}[\\s]",
-        "[\\s][XYZ]{1}[0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]{1}[\\s]"
+        "[\\s][0-9]{6,8}[TRWAGMYFPDXBNJZSQVHLCKE]{1}[\\s]",
+        "[\\s][XYZ]{1}[0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]{1}[\\s]",
+        "[\\s][ABCDEFGHJKLMNPQRSUVW]{1}[0-9]{8}[\\s]",
+        "[\\s][ABCDEFGHJKLMNPQRSUVW]{1}[0-9]{7}[JABCDEFGHI]{1}[\\s]",
+        "[0-9]{6,8}[TRWAGMYFPDXBNJZSQVHLCKE]{1}[\\s]"
     };
 
     private static final String[] matriculas = {
@@ -104,6 +108,7 @@ public class Regex {
                 break;
             }
         }
+        
         return aux;
     }
 

@@ -785,6 +785,10 @@ public class WinC implements Initializable {
                     sb.append(split1);
                     sb.append(System.lineSeparator());
                 }
+//                else{
+//                    sb.append("*error*");
+//                    sb.append(System.lineSeparator());
+//                }
             }
         }
 

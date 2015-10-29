@@ -196,6 +196,7 @@ public class Multa {
         String[] split = linea.split(" ");
 
         String aux;
+        this.nif="";
 
         for (int i = 1; i < split.length; i++) {
             aux = split[i];

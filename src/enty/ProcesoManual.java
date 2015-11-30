@@ -34,13 +34,10 @@ public class ProcesoManual {
 
         while (it.hasNext()) {
             aux = it.next();
-            System.out.println(aux);
 
             if (isValid(aux)) {
-                System.out.println(" ||es válida");
                 valid.add(aux);
             } else {
-                System.err.println(" ||no válida");
                 invalid.add(aux);
             }
         }

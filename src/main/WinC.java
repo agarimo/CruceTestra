@@ -227,7 +227,7 @@ public class WinC implements Initializable {
             });
 
             Sql bd;
-            Multa multa;
+            Multa multa = null;
             List<String> lista = procesoManual.getValid();
             List<Multa> list = new ArrayList();
 
@@ -264,6 +264,7 @@ public class WinC implements Initializable {
                 Sql.setEstadoDescarga(procesoManual.getId(), Estado.PROCESADO);
 
             } catch (SQLException ex) {
+                System.out.println(multa.SQLCrear());
                 Sql.setEstadoDescarga(procesoManual.getId(), Estado.ERROR_INSERCION);
                 Logger.getLogger(WinC.class.getName()).log(Level.SEVERE, null, ex);
             }
